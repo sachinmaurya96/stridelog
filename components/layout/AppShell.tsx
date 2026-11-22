@@ -1,15 +1,27 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { useHydrated } from '@/hooks/useHydrated';
+import { useSettingsStore } from '@/store/settingsStore';
+import { PageSkeleton } from './PageSkeleton';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { TopBar } from './TopBar';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const hydrated = useHydrated();
+  const onboarded = useSettingsStore((s) => s.onboarded);
   const immersive = pathname === '/track';
+  const needsOnboarding = hydrated && !onboarded && pathname !== '/onboarding';
+
+  useEffect(() => {
+    if (needsOnboarding) router.replace('/onboarding');
+  }, [needsOnboarding, router]);
 
   const content = (
     <motion.div
@@ -19,7 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       transition={{ duration: 0.25, ease: 'easeOut' }}
       className="flex min-h-0 flex-1 flex-col"
     >
-      {children}
+      {needsOnboarding ? <PageSkeleton /> : children}
     </motion.div>
   );
 

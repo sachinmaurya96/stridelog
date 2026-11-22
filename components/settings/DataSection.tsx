@@ -1,13 +1,14 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Database, Download, FlaskConical, Upload } from 'lucide-react';
+import { Database, Download, FlaskConical, Trash2, Upload } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { activityRepo } from '@/data/repositories';
-import { backupFileName, exportAll, importAll } from '@/data/backup';
+import { backupFileName, exportAll, importAll, resetAll } from '@/data/backup';
 import { useDataCounts } from '@/hooks/useData';
 import { downloadBlob } from '@/lib/download';
 import { createSampleActivity } from '@/lib/sample';
@@ -17,6 +18,8 @@ export function DataSection() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const router = useRouter();
 
   async function onExport() {
     setBusy(true);
@@ -40,6 +43,12 @@ export function DataSection() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function onReset() {
+    await resetAll();
+    toast.success('All data deleted');
+    router.replace('/onboarding');
   }
 
   async function addSample() {
@@ -70,6 +79,9 @@ export function DataSection() {
           </Button>
           <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={busy}>
             <Upload aria-hidden /> Import backup
+          </Button>
+          <Button variant="destructive" onClick={() => setConfirmReset(true)} disabled={busy}>
+            <Trash2 aria-hidden /> Reset all data
           </Button>
           {process.env.NODE_ENV !== 'production' && (
             <Button variant="ghost" onClick={addSample}>
@@ -103,6 +115,16 @@ export function DataSection() {
           if (pendingFile) void onImport(pendingFile);
           setPendingFile(null);
         }}
+      />
+
+      <ConfirmDialog
+        open={confirmReset}
+        onOpenChange={setConfirmReset}
+        title="Delete all data?"
+        description="This permanently deletes every activity, note, photo, badge and setting on this device. Export a backup first if you might want them back."
+        confirmLabel="Delete everything"
+        destructive
+        onConfirm={() => void onReset()}
       />
     </Card>
   );

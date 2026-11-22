@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
-import { Placeholder } from '@/components/layout/Placeholder';
+import { ClientOnly } from '@/components/layout/ClientOnly';
+import { OnboardingFlow } from '@/components/settings/OnboardingFlow';
 
 export const metadata: Metadata = { title: 'Welcome' };
 
 export default function Page() {
-  return <Placeholder title="Welcome" />;
+  return (
+    <ClientOnly fallback={null}>
+      <OnboardingFlow />
+    </ClientOnly>
+  );
 }
