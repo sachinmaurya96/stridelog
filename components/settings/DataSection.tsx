@@ -12,6 +12,7 @@ import { backupFileName, exportAll, importAll, resetAll } from '@/data/backup';
 import { useDataCounts } from '@/hooks/useData';
 import { downloadBlob } from '@/lib/download';
 import { createSampleActivity } from '@/lib/sample';
+import { getSettings } from '@/store/settingsStore';
 
 export function DataSection() {
   const counts = useDataCounts();
@@ -52,7 +53,7 @@ export function DataSection() {
   }
 
   async function addSample() {
-    await activityRepo.save(createSampleActivity(Math.random() < 0.5 ? 'run' : 'walk'));
+    await activityRepo.save(createSampleActivity(Math.random() < 0.5 ? 'run' : 'walk', Date.now() - 45 * 60_000, getSettings()));
     toast.success('Sample activity saved');
   }
 
