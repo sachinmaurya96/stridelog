@@ -1,26 +1,302 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* StrideLog accents */
+  --color-run: var(--run);
+  --color-run-2: var(--run-2);
+  --color-walk: var(--walk);
+  --color-walk-2: var(--walk-2);
+  --color-gold: var(--gold);
+  --color-run-ink: var(--run-ink);
+  --color-walk-ink: var(--walk-ink);
+  --color-gold-ink: var(--gold-ink);
+  --color-ink-on-accent: var(--ink-on-accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Light theme: same layout, white cards, softer accents. */
+:root {
+  --background: #f4f6fb;
+  --foreground: #0b0f1a;
+  --card: #ffffff;
+  --card-foreground: #0b0f1a;
+  --popover: #ffffff;
+  --popover-foreground: #0b0f1a;
+  --primary: #ff6b35;
+  --primary-foreground: #0b0f1a;
+  --secondary: #e9edf5;
+  --secondary-foreground: #0b0f1a;
+  --muted: #e9edf5;
+  --muted-foreground: #556075;
+  --accent: #e9edf5;
+  --accent-foreground: #0b0f1a;
+  --destructive: #d92d4b;
+  --border: rgb(11 15 26 / 10%);
+  --input: rgb(11 15 26 / 16%);
+  --ring: #e8551f;
+  --chart-1: #ff7a45;
+  --chart-2: #00b894;
+  --chart-3: #f2b632;
+  --chart-4: #0ea5c9;
+  --chart-5: #ff4f7e;
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0b0f1a;
+  --sidebar-primary: #ff6b35;
+  --sidebar-primary-foreground: #0b0f1a;
+  --sidebar-accent: #eef1f7;
+  --sidebar-accent-foreground: #0b0f1a;
+  --sidebar-border: rgb(11 15 26 / 8%);
+  --sidebar-ring: #e8551f;
+
+  --run: #ff7a45;
+  --run-2: #ff4f7e;
+  --walk: #00c9a2;
+  --walk-2: #10b4d8;
+  --gold: #f5b82e;
+  --run-ink: #c2410c;
+  --walk-ink: #0f766e;
+  --gold-ink: #a16207;
+  --ink-on-accent: #0b0f1a;
+  --glass: rgb(255 255 255 / 88%);
+  --glass-border: rgb(11 15 26 / 8%);
+  --shadow-soft: 0 1px 2px rgb(11 15 26 / 4%), 0 8px 24px -12px rgb(11 15 26 / 12%);
+  --map-bg: #e8edf4;
+}
+
+/* Dark theme (default): deep navy, glassy cards, vivid accents. */
+.dark {
+  --background: #0b0f1a;
+  --foreground: #e8ecf5;
+  --card: #121829;
+  --card-foreground: #e8ecf5;
+  --popover: #141b2e;
+  --popover-foreground: #e8ecf5;
+  --primary: #ff6b35;
+  --primary-foreground: #0b0f1a;
+  --secondary: #1a2236;
+  --secondary-foreground: #e8ecf5;
+  --muted: #1a2236;
+  --muted-foreground: #9aa4bd;
+  --accent: #1f2940;
+  --accent-foreground: #e8ecf5;
+  --destructive: #ff5a6e;
+  --border: rgb(255 255 255 / 10%);
+  --input: rgb(255 255 255 / 14%);
+  --ring: #ff8a5c;
+  --chart-1: #ff6b35;
+  --chart-2: #00d4aa;
+  --chart-3: #ffc94d;
+  --chart-4: #00b4d8;
+  --chart-5: #ff3d71;
+  --sidebar: #0e1322;
+  --sidebar-foreground: #e8ecf5;
+  --sidebar-primary: #ff6b35;
+  --sidebar-primary-foreground: #0b0f1a;
+  --sidebar-accent: rgb(255 255 255 / 6%);
+  --sidebar-accent-foreground: #e8ecf5;
+  --sidebar-border: rgb(255 255 255 / 8%);
+  --sidebar-ring: #ff8a5c;
+
+  --run: #ff6b35;
+  --run-2: #ff3d71;
+  --walk: #00d4aa;
+  --walk-2: #00b4d8;
+  --gold: #ffc94d;
+  --run-ink: #ff8a5c;
+  --walk-ink: #2ee6c0;
+  --gold-ink: #ffc94d;
+  --ink-on-accent: #0b0f1a;
+  --glass: rgb(255 255 255 / 5%);
+  --glass-border: rgb(255 255 255 / 10%);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 20%), 0 12px 32px -16px rgb(0 0 0 / 60%);
+  --map-bg: #0e1322;
+}
+
+@utility glass {
+  background-color: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+
+@utility bg-run-gradient {
+  background-image: linear-gradient(135deg, var(--run) 0%, var(--run-2) 100%);
+}
+
+@utility bg-walk-gradient {
+  background-image: linear-gradient(135deg, var(--walk) 0%, var(--walk-2) 100%);
+}
+
+@utility bg-gold-gradient {
+  background-image: linear-gradient(135deg, #ffe08a 0%, var(--gold) 55%, #f59e0b 100%);
+}
+
+@utility text-gradient-run {
+  background-image: linear-gradient(135deg, var(--run) 0%, var(--run-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    min-height: 100dvh;
+  }
+  /* Soft accent glows behind the glass cards in dark mode. */
+  .dark body {
+    background-image:
+      radial-gradient(60rem 30rem at 110% -10%, rgb(255 61 113 / 10%), transparent 60%),
+      radial-gradient(50rem 30rem at -20% 10%, rgb(0 212 170 / 8%), transparent 60%);
+    background-attachment: fixed;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------- Leaflet ---------- */
+.leaflet-container {
+  background: var(--map-bg);
+  font-family: inherit;
+}
+.leaflet-control-attribution {
+  font-size: 10px;
+}
+.dark .leaflet-control-attribution {
+  background: rgb(11 15 26 / 70%) !important;
+  color: #9aa4bd;
+}
+.dark .leaflet-control-attribution a {
+  color: #c9d1e3;
+}
+.leaflet-div-icon.sl-marker {
+  background: transparent;
+  border: 0;
+}
+
+.sl-location {
+  position: relative;
+  width: 22px;
+  height: 22px;
+}
+.sl-location__dot {
+  position: absolute;
+  inset: 3px;
+  border-radius: 9999px;
+  background: #2f80ff;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 15%), 0 2px 6px rgb(0 0 0 / 35%);
+}
+.sl-location__pulse {
+  position: absolute;
+  inset: -10px;
+  border-radius: 9999px;
+  background: rgb(47 128 255 / 35%);
+  animation: sl-pulse 2s ease-out infinite;
+}
+.sl-location__heading {
+  position: absolute;
+  left: 50%;
+  top: -14px;
+  width: 0;
+  height: 0;
+  margin-left: -7px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 12px solid #2f80ff;
+  transform-origin: 7px 25px;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 30%));
+}
+.sl-pin {
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 40%);
+}
+
+@keyframes sl-pulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
