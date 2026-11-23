@@ -11,7 +11,7 @@ import { activityRepo } from '@/data/repositories';
 import { backupFileName, exportAll, importAll, resetAll } from '@/data/backup';
 import { useDataCounts } from '@/hooks/useData';
 import { downloadBlob } from '@/lib/download';
-import { createSampleActivity } from '@/lib/sample';
+import { createDemoHistory, createSampleActivity } from '@/lib/sample';
 import { getSettings } from '@/store/settingsStore';
 
 export function DataSection() {
@@ -52,6 +52,12 @@ export function DataSection() {
     router.replace('/onboarding');
   }
 
+  async function loadDemo() {
+    const list = createDemoHistory(new Date(), getSettings());
+    for (const a of list) await activityRepo.save(a);
+    toast.success(`Added ${list.length} demo activities`);
+  }
+
   async function addSample() {
     await activityRepo.save(createSampleActivity(Math.random() < 0.5 ? 'run' : 'walk', Date.now() - 45 * 60_000, getSettings()));
     toast.success('Sample activity saved');
@@ -87,6 +93,11 @@ export function DataSection() {
           {process.env.NODE_ENV !== 'production' && (
             <Button variant="ghost" onClick={addSample}>
               <FlaskConical aria-hidden /> Add sample activity
+            </Button>
+          )}
+          {process.env.NODE_ENV !== 'production' && (
+            <Button variant="ghost" onClick={loadDemo}>
+              <FlaskConical aria-hidden /> Load demo history
             </Button>
           )}
         </div>

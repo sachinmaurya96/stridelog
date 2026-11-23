@@ -9,10 +9,12 @@ export function createSampleActivity(
   type: ActivityType = 'run',
   startedAt = Date.now() - 45 * 60_000,
   profile = { weightKg: 70, heightCm: 170 },
+  /** Scales the loop size and nudges the pace, so generated history isn't identical. */
+  variety = 1,
 ): Activity {
   const center = DEFAULT_SIM_CENTER;
-  const radiusM = type === 'run' ? 650 : 400;
-  const targetPace = type === 'run' ? 330 : 690;
+  const radiusM = (type === 'run' ? 650 : 400) * variety;
+  const targetPace = (type === 'run' ? 330 : 690) * (0.92 + 0.16 * ((variety * 7) % 1));
   const n = 240;
   const lengthM = 2 * Math.PI * radiusM;
   const stepSec = ((lengthM / 1000) * targetPace) / n;
@@ -47,4 +49,22 @@ export function createSampleActivity(
     splits: computeSplits(route),
     createdAt: Date.now(),
   };
+}
+
+/** About six weeks of realistic history (dev only), ending yesterday, for exploring the dashboard. */
+export function createDemoHistory(now = new Date(), profile = { weightKg: 70, heightCm: 170 }, days = 42): Activity[] {
+  const out: Activity[] = [];
+  for (let d = days; d >= 1; d--) {
+    if (Math.random() < 0.35) continue; // rest day
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() - d);
+    const sessions = Math.random() < 0.15 ? 2 : 1;
+    for (let s = 0; s < sessions; s++) {
+      const type: ActivityType = Math.random() < 0.55 ? 'run' : 'walk';
+      const hour = s === 0 ? (Math.random() < 0.2 ? 6 : 7 + Math.floor(Math.random() * 3)) : 18 + Math.floor(Math.random() * 3);
+      const start = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour, Math.floor(Math.random() * 60));
+      const a = createSampleActivity(type, start.getTime(), profile, 0.6 + Math.random() * 1.1);
+      out.push({ ...a, title: undefined });
+    }
+  }
+  return out;
 }

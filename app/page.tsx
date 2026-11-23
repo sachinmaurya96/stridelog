@@ -1,8 +1,10 @@
-import type { Metadata } from 'next';
-import { Placeholder } from '@/components/layout/Placeholder';
-
-export const metadata: Metadata = { title: 'Dashboard' };
+import { ClientOnly } from '@/components/layout/ClientOnly';
+import { DashboardView } from '@/components/dashboard/DashboardView';
 
 export default function Page() {
-  return <Placeholder title="Dashboard" />;
+  return (
+    <ClientOnly>
+      <DashboardView />
+    </ClientOnly>
+  );
 }
