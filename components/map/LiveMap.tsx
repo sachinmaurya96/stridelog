@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import type { Fix } from '@/components/tracking/TrackerProvider';
 import { MapResizer, ThemedTiles } from './MapParts';
 import { RecenterButton } from './RecenterButton';
-import { locationIcon, pinIcon, routeStyles, START_COLOR } from './style';
+import { flagIcon, locationIcon, routeStyles, START_COLOR } from './style';
 
 export interface LiveMapProps {
   fix: Fix | null;
@@ -130,7 +130,7 @@ export default function LiveMap({
   className,
   recenterClassName,
 }: LiveMapProps) {
-  const startIcon = useMemo(() => pinIcon(START_COLOR), []);
+  const startIcon = useMemo(() => flagIcon('Start', START_COLOR), []);
   const start = route[0];
 
   return (

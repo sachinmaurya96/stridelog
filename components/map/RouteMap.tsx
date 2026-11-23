@@ -4,16 +4,18 @@ import 'leaflet/dist/leaflet.css';
 import { useCallback, useEffect, useMemo } from 'react';
 import { CircleMarker, MapContainer, Marker, Polyline, useMap } from 'react-leaflet';
 import type { ActivityType, GeoPoint } from '@/data/types';
-import { boundsOf, toSegments } from '@/lib/geo';
+import { boundsOf, directionMarkers, distanceM, toSegments } from '@/lib/geo';
 import { cn } from '@/lib/utils';
 import { MapResizer, ThemedTiles } from './MapParts';
-import { END_COLOR, pinIcon, routeColor, routeStyles, START_COLOR } from './style';
+import { arrowIcon, END_COLOR, flagIcon, pinIcon, routeColor, routeStyles, START_COLOR } from './style';
 
 export interface RouteMapProps {
   route: GeoPoint[];
   type: ActivityType;
   /** false = static thumbnail (no zoom, pan or controls). */
   interactive?: boolean;
+  /** Labelled Start/Finish pins and direction arrows (defaults to `interactive`; thumbnails use plain dots). */
+  labels?: boolean;
   /** Show Leaflet's attribution (defaults to `interactive`; tiny thumbnails credit the map once per page). */
   attribution?: boolean;
   /** Position of the replay marker, if any. */
@@ -37,6 +39,7 @@ export default function RouteMap({
   type,
   interactive = true,
   attribution = interactive,
+  labels = interactive,
   marker,
   className,
   padding = 24,
@@ -46,9 +49,14 @@ export default function RouteMap({
     [route],
   );
   const styles = routeStyles(type);
-  const icons = useMemo(() => ({ start: pinIcon(START_COLOR), end: pinIcon(END_COLOR) }), []);
   const first = route[0];
   const last = route[route.length - 1];
+  const icons = useMemo(() => {
+    if (!labels) return { start: pinIcon(START_COLOR), end: pinIcon(END_COLOR) };
+    const loop = first && last && distanceM(first, last) < 40;
+    return { start: flagIcon('Start', START_COLOR), end: flagIcon('Finish', END_COLOR, !!loop) };
+  }, [labels, first, last]);
+  const arrows = useMemo(() => (labels ? directionMarkers(route, 6) : []), [labels, route]);
   const center: [number, number] = first ? [first.lat, first.lng] : [20, 0];
 
   return (
@@ -73,9 +81,12 @@ export default function RouteMap({
         {segments.map((positions, i) =>
           styles.map((pathOptions, j) => <Polyline key={`${i}-${j}`} positions={positions} pathOptions={pathOptions} />),
         )}
-        {first && <Marker position={[first.lat, first.lng]} icon={icons.start} interactive={false} keyboard={false} />}
+        {arrows.map((a, i) => (
+          <Marker key={i} position={[a.lat, a.lng]} icon={arrowIcon(a.bearing)} interactive={false} keyboard={false} />
+        ))}
+        {first && <Marker position={[first.lat, first.lng]} icon={icons.start} interactive={false} keyboard={false} zIndexOffset={500} />}
         {last && route.length > 1 && (
-          <Marker position={[last.lat, last.lng]} icon={icons.end} interactive={false} keyboard={false} />
+          <Marker position={[last.lat, last.lng]} icon={icons.end} interactive={false} keyboard={false} zIndexOffset={600} />
         )}
         {marker && (
           <CircleMarker

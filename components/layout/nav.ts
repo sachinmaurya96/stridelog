@@ -4,7 +4,9 @@ import {
   Camera,
   History,
   House,
+  ListChecks,
   NotebookPen,
+  PersonStanding,
   Play,
   Settings,
   type LucideIcon,
@@ -18,9 +20,11 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: House },
+  { href: '/today', label: 'Today', icon: ListChecks },
   { href: '/track', label: 'Track', icon: Play },
   { href: '/activities', label: 'Activities', icon: History },
   { href: '/calendar', label: 'Calendar', icon: CalendarDays },
+  { href: '/exercises', label: 'Exercises', icon: PersonStanding },
   { href: '/badges', label: 'Badges', icon: Award },
   { href: '/notes', label: 'Notes', icon: NotebookPen },
   { href: '/photos', label: 'Photos', icon: Camera },
@@ -29,7 +33,7 @@ export const NAV_ITEMS: NavItem[] = [
 
 /** Items shown in the mobile "More" sheet. */
 export const MORE_ITEMS = NAV_ITEMS.filter((i) =>
-  ['/activities', '/notes', '/photos', '/settings'].includes(i.href),
+  ['/today', '/activities', '/exercises', '/notes', '/photos', '/settings'].includes(i.href),
 );
 
 export function isActive(pathname: string, href: string) {

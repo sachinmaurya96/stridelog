@@ -183,3 +183,35 @@ export function paceSeries(points: GeoPoint[], bucketSec = 30): PacePoint[] {
   }
   return out;
 }
+
+/** Compass bearing in degrees (0 = north) from `a` to `b`. */
+export function bearingDeg(a: LatLng, b: LatLng) {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const y = Math.sin(toRad(b.lng - a.lng)) * Math.cos(toRad(b.lat));
+  const x =
+    Math.cos(toRad(a.lat)) * Math.sin(toRad(b.lat)) -
+    Math.sin(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.cos(toRad(b.lng - a.lng));
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+}
+
+/** `count` evenly spaced points along the route, each with the direction of travel (for arrows on the map). */
+export function directionMarkers(points: GeoPoint[], count = 6): (LatLng & { bearing: number })[] {
+  const total = totalDistance(points);
+  if (total < 50 || count < 1) return [];
+  const step = total / (count + 1);
+  const out: (LatLng & { bearing: number })[] = [];
+  let walked = 0;
+  let next = step;
+  for (let i = 1; i < points.length && out.length < count; i++) {
+    const a = points[i - 1], b = points[i];
+    if (!sameSegment(a, b)) continue;
+    const d = distanceM(a, b);
+    while (d > 0 && walked + d >= next && out.length < count) {
+      const f = (next - walked) / d;
+      out.push({ lat: a.lat + (b.lat - a.lat) * f, lng: a.lng + (b.lng - a.lng) * f, bearing: bearingDeg(a, b) });
+      next += step;
+    }
+    walked += d;
+  }
+  return out;
+}

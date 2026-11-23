@@ -1,11 +1,11 @@
 // StrideLog service worker: caches the app shell so the app opens offline.
 // Pages: network first (fresh when online, cached copy when offline).
 // Hashed build assets: cache first. Map tiles: stale-while-revalidate, capped.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL = `stridelog-shell-${VERSION}`;
 const ASSETS = `stridelog-assets-${VERSION}`;
 const TILES = `stridelog-tiles-${VERSION}`;
-const PAGES = ['/', '/track', '/activities', '/calendar', '/badges', '/notes', '/photos', '/settings', '/onboarding'];
+const PAGES = ['/', '/today', '/track', '/activities', '/calendar', '/exercises', '/badges', '/notes', '/photos', '/settings', '/onboarding'];
 const TILE_HOSTS = ['tile.openstreetmap.org', 'tiles.stadiamaps.com'];
 const MAX_TILES = 400;
 const MAX_ASSETS = 300;

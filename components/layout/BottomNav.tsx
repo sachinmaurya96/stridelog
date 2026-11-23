@@ -85,7 +85,7 @@ export function BottomNav({ className }: { className?: string }) {
             <SheetTitle>More</SheetTitle>
             <SheetDescription className="sr-only">Other sections of StrideLog</SheetDescription>
           </SheetHeader>
-          <div className="grid grid-cols-2 gap-3 px-4 pb-6">
+          <div className="grid grid-cols-3 gap-3 px-4 pb-6">
             {MORE_ITEMS.map((item) => {
               const active = isActive(pathname, item.href);
               return (

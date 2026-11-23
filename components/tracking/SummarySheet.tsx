@@ -65,7 +65,7 @@ export function SummarySheet({ open, type, startedAt, route, stats, splits, unit
 
         <div className="flex flex-col gap-5 px-4 pb-4">
           {route.length > 1 ? (
-            <RouteMap route={route} type={type} interactive={false} attribution className="h-44 rounded-2xl" />
+            <RouteMap route={route} type={type} interactive={false} attribution labels className="h-48 rounded-2xl" />
           ) : (
             <div className="grid h-24 place-items-center rounded-2xl bg-muted text-sm text-muted-foreground">
               No GPS route was recorded

@@ -7,6 +7,7 @@ import {
   monthStats,
   percentChange,
   periodRange,
+  speedByType,
   todayStats,
   weekStats,
 } from '@/lib/stats';
@@ -75,5 +76,19 @@ describe('period stats', () => {
     expect(percentChange(15, 10)).toBe(50);
     expect(percentChange(5, 10)).toBe(-50);
     expect(percentChange(5, 0)).toBeNull();
+  });
+});
+
+describe('speedByType', () => {
+  it('averages runs and walks separately and finds the best effort', () => {
+    const runA = { ...act(at(2026, 3, 1), 'run', 5000), durationSec: 1500 }; // 3.33 m/s
+    const runB = { ...act(at(2026, 3, 2), 'run', 10_000), durationSec: 3600 }; // 2.78 m/s
+    const walk = { ...act(at(2026, 3, 3), 'walk', 3000), durationSec: 2160 }; // 1.39 m/s
+    const s = speedByType([runA, runB, walk]);
+    expect(s.run.count).toBe(2);
+    expect(s.run.avgMps).toBeCloseTo(15_000 / 5100);
+    expect(s.run.bestMps).toBeCloseTo(5000 / 1500);
+    expect(s.walk.avgMps).toBeCloseTo(3000 / 2160);
+    expect(speedByType([]).run).toEqual({ count: 0, avgMps: 0, bestMps: 0 });
   });
 });

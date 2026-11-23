@@ -1,5 +1,5 @@
 import type { ActivityType, GeoPoint } from '@/data/types';
-import { distanceM } from './geo';
+import { bearingDeg, distanceM } from './geo';
 import { now } from './clock';
 
 type LatLng = { lat: number; lng: number };
@@ -27,15 +27,6 @@ export function loopRoute(center: LatLng, lengthM = 2000, n = 240): LatLng[] {
   let len = 0;
   for (let i = 1; i < unit.length; i++) len += distanceM(unit[i - 1], unit[i]);
   return shape((100 * lengthM) / len);
-}
-
-function bearing(a: LatLng, b: LatLng) {
-  const toRad = (d: number) => (d * Math.PI) / 180;
-  const y = Math.sin(toRad(b.lng - a.lng)) * Math.cos(toRad(b.lat));
-  const x =
-    Math.cos(toRad(a.lat)) * Math.sin(toRad(b.lat)) -
-    Math.sin(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.cos(toRad(b.lng - a.lng));
-  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
 }
 
 interface SimulationOptions {
@@ -87,7 +78,7 @@ export function startSimulation({ center, getType, speedFactor = 1, onPoint }: S
         acc: 4 + Math.round(Math.random() * 4),
         speed: SIM_SPEED_MPS[type],
       },
-      bearing(a, b),
+      bearingDeg(a, b),
     );
   };
 

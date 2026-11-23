@@ -34,8 +34,10 @@ import { GoalRing } from './GoalRing';
 import { LatestBadgeCard } from './LatestBadgeCard';
 import { MonthlyChart } from './MonthlyChart';
 import { RecentActivities } from './RecentActivities';
+import { SpeedCard } from './SpeedCard';
 import { StatCard } from './StatCard';
 import { StreakCard } from './StreakCard';
+import { TodayPlanCard } from './TodayPlanCard';
 import { TodayShortcuts } from './TodayShortcuts';
 import { WeeklyChart } from './WeeklyChart';
 import { WeeklyGoalCard } from './WeeklyGoalCard';
@@ -190,6 +192,11 @@ export function DashboardView() {
       </section>
 
       <StreakCard current={data.current} longest={data.longest} activeToday={data.activeToday} />
+
+      <div className="md:col-span-2">
+        <TodayPlanCard />
+      </div>
+      <SpeedCard activities={activities} units={units} className="md:col-span-2" />
 
       <section aria-labelledby="stats-title" className="flex flex-col gap-3 md:col-span-2 xl:col-span-4">
         <div className="flex flex-wrap items-center justify-between gap-2">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useLiveQuery } from 'dexie-react-hooks';
-import { activityRepo, noteRepo, photoRepo } from '@/data/repositories';
+import { activityRepo, dayLogRepo, emptyDayLog, noteRepo, photoRepo } from '@/data/repositories';
 
 // Live queries re-run automatically whenever the underlying IndexedDB tables change.
 // `undefined` means "still loading"; single-record hooks return `null` for "not found".
@@ -47,4 +47,9 @@ export function useDataCounts() {
     }),
     [],
   );
+}
+
+/** The day's log (an empty one if nothing has been logged yet). */
+export function useDayLog(date: string) {
+  return useLiveQuery(async () => (await dayLogRepo.get(date)) ?? emptyDayLog(date), [date]);
 }

@@ -12,6 +12,9 @@ export const DEFAULT_SETTINGS: Settings = {
   weeklyGoalKm: 20,
   theme: 'dark',
   onboarded: false,
+  age: 30,
+  sex: 'unspecified',
+  customTasks: [],
 };
 
 interface SettingsState extends Settings {
@@ -30,6 +33,9 @@ export function pickSettings(state: Settings): Settings {
     weeklyGoalKm: state.weeklyGoalKm,
     theme: state.theme,
     onboarded: state.onboarded,
+    age: state.age,
+    sex: state.sex,
+    customTasks: state.customTasks,
   };
 }
 

@@ -166,3 +166,25 @@ export function longestStreak(activities: Activity[]) {
   }
   return best;
 }
+
+export interface TypeSpeed {
+  count: number;
+  /** Total distance / total moving time, in m/s (0 when there is nothing to measure). */
+  avgMps: number;
+  /** Fastest average speed of a single activity of at least 1 km, in m/s. */
+  bestMps: number;
+}
+
+/** Average and best speed, separately for runs and walks. */
+export function speedByType(activities: Activity[]): Record<'run' | 'walk', TypeSpeed> {
+  const calc = (list: Activity[]): TypeSpeed => {
+    const dist = list.reduce((s, a) => s + a.distanceM, 0);
+    const time = list.reduce((s, a) => s + a.durationSec, 0);
+    const best = list.filter((a) => a.distanceM >= 1000 && a.durationSec > 0).map((a) => a.distanceM / a.durationSec);
+    return { count: list.length, avgMps: time > 0 ? dist / time : 0, bestMps: best.length ? Math.max(...best) : 0 };
+  };
+  return {
+    run: calc(activities.filter((a) => a.type === 'run')),
+    walk: calc(activities.filter((a) => a.type === 'walk')),
+  };
+}

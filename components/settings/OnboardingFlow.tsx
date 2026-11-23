@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NumberStepper } from '@/components/common/NumberStepper';
+import { Segmented } from '@/components/common/Segmented';
 import { Logo } from '@/components/layout/Logo';
 import { cn } from '@/lib/utils';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -15,7 +16,7 @@ import { LIMITS, NAME_MAX } from './fields';
 
 const STEPS = [
   { title: "Hi! What's your name?", subtitle: "We'll use it to greet you." },
-  { title: 'Your body', subtitle: 'Needed to estimate calories and steps. It never leaves this device.' },
+  { title: 'Your body', subtitle: 'Used to estimate calories, steps, water and sleep. It never leaves this device.' },
   { title: 'Set your goals', subtitle: 'You can change these any time in Settings.' },
 ];
 
@@ -27,6 +28,8 @@ export function OnboardingFlow() {
   const [name, setName] = useState(settings.name);
   const [weightKg, setWeightKg] = useState(settings.weightKg);
   const [heightCm, setHeightCm] = useState(settings.heightCm);
+  const [age, setAge] = useState(settings.age);
+  const [sex, setSex] = useState(settings.sex);
   const [dailyGoalSteps, setDailyGoalSteps] = useState(settings.dailyGoalSteps);
   const [weeklyGoalActivities, setWeeklyGoalActivities] = useState(settings.weeklyGoalActivities);
   const [weeklyGoalKm, setWeeklyGoalKm] = useState(settings.weeklyGoalKm);
@@ -50,6 +53,8 @@ export function OnboardingFlow() {
       name: name.trim(),
       weightKg,
       heightCm,
+      age,
+      sex,
       dailyGoalSteps,
       weeklyGoalActivities,
       weeklyGoalKm,
@@ -138,6 +143,20 @@ export function OnboardingFlow() {
                 <>
                   <NumberStepper id="weight" label="Weight" unit="kg" value={weightKg} onChange={setWeightKg} {...LIMITS.weightKg} />
                   <NumberStepper id="height" label="Height" unit="cm" value={heightCm} onChange={setHeightCm} {...LIMITS.heightCm} />
+                  <NumberStepper id="age" label="Age" unit="years" value={age} onChange={setAge} {...LIMITS.age} />
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm font-medium">Sex (for calorie estimates)</span>
+                    <Segmented
+                      label="Sex"
+                      value={sex}
+                      onChange={setSex}
+                      options={[
+                        { value: 'female', label: 'Female' },
+                        { value: 'male', label: 'Male' },
+                        { value: 'unspecified', label: 'Other' },
+                      ]}
+                    />
+                  </div>
                 </>
               )}
 

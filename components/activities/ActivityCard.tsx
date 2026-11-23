@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import type { Activity, Units } from '@/data/types';
 import { ACTIVITY_META, ActivityIcon } from '@/components/common/activity';
-import { activityTitle, formatDistance, formatDuration, formatPace } from '@/lib/format';
+import { activityTitle, formatDistance, formatDuration, formatPace, formatSpeed } from '@/lib/format';
 import { LazyRouteThumb } from './LazyRouteThumb';
 
 export function ActivityCard({ activity: a, units, thumbnail = true }: { activity: Activity; units: Units; thumbnail?: boolean }) {
@@ -33,6 +33,10 @@ export function ActivityCard({ activity: a, units, thumbnail = true }: { activit
           <div>
             <dt className="sr-only">Pace</dt>
             <dd className="tabular-nums text-muted-foreground">{formatPace(a.avgPaceSecPerKm, units)}</dd>
+          </div>
+          <div>
+            <dt className="sr-only">Average speed</dt>
+            <dd className="tabular-nums text-muted-foreground">{formatSpeed(a.durationSec ? a.distanceM / a.durationSec : 0, units)}</dd>
           </div>
         </dl>
       </div>

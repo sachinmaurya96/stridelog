@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StrideLog
 
-## Getting Started
+A run & walk tracker built with Next.js 16: live GPS map, dashboard, calendar, badges, daily notes and photos, bodyweight exercises and a daily plan. Everything is stored in the browser (localStorage + IndexedDB) behind a repository layer, so a backend can be added later without touching the UI.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
+npm test             # Vitest: geo, fitness, stats, badges, wellness, tasks
+npm run build && npm start   # production build (service worker is only registered in production)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Testing GPS
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Desktop:** on the Track page (dev only) use **Developer: GPS simulator** to feed a fake 2 km loop at 1×, 5× or 20× speed. You can also set a location in Chrome DevTools → More tools → Sensors.
+- **Phone:** geolocation needs HTTPS. Run `npm run dev:https` and open `https://<your-laptop-ip>:3000` on the same Wi-Fi (accept the certificate warning), or use a tunnel (`ngrok http 3000` / `cloudflared tunnel --url http://localhost:3000`). LAN and tunnel hosts are already allowed in `next.config.ts`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Maps
 
-## Learn More
+CARTO's free basemaps (the original plan) now return an "API key required" tile, so the app uses **OpenStreetMap** tiles by default (darkened with a CSS filter in dark mode). OSM tiles are fine for personal use but not for a busy public app. Before a public launch, create a free [Stadia Maps](https://stadiamaps.com/) key and set:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+NEXT_PUBLIC_STADIA_API_KEY=your-key
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+All map code lives in `components/map/`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Where things are
 
-## Deploy on Vercel
+| Path | What |
+|------|------|
+| `app/` | Routes (each page wraps a client view in `ClientOnly`) |
+| `components/` | UI by feature: `tracking`, `map`, `dashboard`, `activities`, `calendar`, `badges`, `notes`, `photos`, `exercises`, `today`, `settings`, `layout` |
+| `lib/` | Pure, tested logic: `geo`, `fitness`, `stats`, `badges`, `wellness`, `tasks`, `format` |
+| `data/` | Types, Dexie database, repositories (swap `local*Repo` for an API later), backup, badge service, exercise library |
+| `store/` | Zustand stores: settings, badges, live tracking session (persisted), install prompt |
+| `public/sw.js` | Hand-written service worker (offline app shell + map tile cache) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Good to know
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- If a CSS change doesn't show up in `npm run dev`, stop the server and delete `.next/dev` (Turbopack's dev cache), then start again.
+- Water, food and sleep suggestions are general guidance from public health and sports-nutrition guidelines, not medical advice.
+- Settings → **Export all data** downloads a JSON backup (photos included); **Import** restores it.

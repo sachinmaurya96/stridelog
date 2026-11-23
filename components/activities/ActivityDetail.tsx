@@ -14,7 +14,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ActivityIcon, ACTIVITY_META } from '@/components/common/activity';
-import { PaceChart } from '@/components/charts/PaceChart';
+import { PaceChart, type PaceMetric } from '@/components/charts/PaceChart';
+import { Segmented } from '@/components/common/Segmented';
+import { RecoveryCard } from './RecoveryCard';
 import { SplitsChart } from '@/components/charts/SplitsChart';
 import { RouteMap } from '@/components/map/MapClient';
 import { SplitsList } from '@/components/tracking/SplitsList';
@@ -147,7 +149,9 @@ export function ActivityDetail() {
   const router = useRouter();
   const activity = useActivity(id);
   const units = useSettingsStore((s) => s.units);
+  const weightKg = useSettingsStore((s) => s.weightKg);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [metric, setMetric] = useState<PaceMetric>('pace');
   const replay = useReplay(activity?.route.length ?? 0);
 
   const splits = useMemo(
@@ -243,18 +247,30 @@ export function ActivityDetail() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle>Pace over time</CardTitle>
+          <CardHeader className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle>{metric === 'pace' ? 'Pace' : 'Speed'} over time</CardTitle>
+            <Segmented
+              label="Chart"
+              value={metric}
+              onChange={setMetric}
+              className="w-auto min-w-40"
+              options={[
+                { value: 'pace', label: 'Pace' },
+                { value: 'speed', label: 'Speed' },
+              ]}
+            />
           </CardHeader>
           <CardContent>
             {pace.length > 1 ? (
-              <PaceChart series={pace} units={units} type={activity.type} />
+              <PaceChart series={pace} units={units} type={activity.type} metric={metric} />
             ) : (
               <p className="text-sm text-muted-foreground">Not enough data for a pace chart.</p>
             )}
           </CardContent>
         </Card>
       </div>
+
+      <RecoveryCard activity={activity} weightKg={weightKg} />
 
       <ConfirmDialog
         open={confirmDelete}

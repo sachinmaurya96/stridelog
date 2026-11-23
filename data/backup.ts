@@ -1,5 +1,5 @@
-import { activityRepo, noteRepo, photoRepo } from './repositories';
-import type { Activity, DailyNote, DailyPhoto, Settings, UnlockedBadge } from './types';
+import { activityRepo, dayLogRepo, noteRepo, photoRepo } from './repositories';
+import type { Activity, DailyNote, DailyPhoto, DayLog, Settings, UnlockedBadge } from './types';
 import { DEFAULT_SETTINGS, getSettings, useSettingsStore } from '@/store/settingsStore';
 import { useBadgeStore } from '@/store/badgeStore';
 import { useTrackingStore } from '@/store/trackingStore';
@@ -15,6 +15,8 @@ export interface BackupFile {
   activities: Activity[];
   notes: DailyNote[];
   photos: SerializedPhoto[];
+  /** Water, sleep, exercises and task checks (added after v1; optional when importing). */
+  days?: DayLog[];
 }
 
 function blobToDataUrl(blob: Blob) {
@@ -32,10 +34,11 @@ async function dataUrlToBlob(dataUrl: string) {
 
 /** Everything the app stores, as one JSON file (photos as base64 data URLs). */
 export async function exportAll(): Promise<Blob> {
-  const [activities, notes, photos] = await Promise.all([
+  const [activities, notes, photos, days] = await Promise.all([
     activityRepo.list(),
     noteRepo.list(),
     photoRepo.list(),
+    dayLogRepo.list(),
   ]);
   const file: BackupFile = {
     app: 'stridelog',
@@ -45,6 +48,7 @@ export async function exportAll(): Promise<Blob> {
     badges: useBadgeStore.getState().unlocked,
     activities,
     notes,
+    days,
     photos: await Promise.all(
       photos.map(async (p) => ({
         ...p,
@@ -78,6 +82,7 @@ export async function importAll(file: File) {
     activityRepo.replaceAll(data.activities),
     noteRepo.replaceAll(data.notes ?? []),
     photoRepo.replaceAll(photos),
+    dayLogRepo.replaceAll(data.days ?? []),
   ]);
   useSettingsStore.getState().update({ ...DEFAULT_SETTINGS, ...data.settings });
   useBadgeStore.getState().replaceAll(data.badges ?? []);
@@ -86,7 +91,7 @@ export async function importAll(file: File) {
 
 /** Deletes every activity, note, photo, badge, setting and any unfinished session. */
 export async function resetAll() {
-  await Promise.all([activityRepo.clear(), noteRepo.clear(), photoRepo.clear()]);
+  await Promise.all([activityRepo.clear(), noteRepo.clear(), photoRepo.clear(), dayLogRepo.clear()]);
   useBadgeStore.getState().reset();
   useSettingsStore.getState().reset();
   useTrackingStore.getState().reset();

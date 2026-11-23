@@ -54,6 +54,13 @@ export interface DailyPhoto {
 
 export type Units = 'km' | 'mi';
 export type ThemePref = 'dark' | 'light' | 'system';
+export type Sex = 'male' | 'female' | 'unspecified';
+
+/** A task the user added themselves; it shows up on the checklist every day. */
+export interface CustomTask {
+  id: string;
+  title: string;
+}
 
 export interface Settings {
   name: string;
@@ -65,6 +72,19 @@ export interface Settings {
   weeklyGoalKm: number;        // e.g. 20
   theme: ThemePref;
   onboarded: boolean;
+  age: number;                 // used for calorie and sleep targets
+  sex: Sex;
+  customTasks: CustomTask[];
+}
+
+/** Everything logged for one day that isn't an activity, note or photo. */
+export interface DayLog {
+  date: string;                // 'yyyy-MM-dd'
+  waterMl: number;
+  sleepHours: number | null;   // last night's sleep
+  exercises: { id: string; at: number }[]; // bodyweight exercises done
+  checks: Record<string, boolean>;          // manually ticked tasks
+  updatedAt: number;
 }
 
 export type BadgeTier = 'bronze' | 'silver' | 'gold' | 'platinum';

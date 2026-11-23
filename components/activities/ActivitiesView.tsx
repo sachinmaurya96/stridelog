@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/common/EmptyState';
 import { MapAttribution } from '@/components/map/MapAttribution';
+import { SpeedCard } from '@/components/dashboard/SpeedCard';
 import { Segmented } from '@/components/common/Segmented';
 import { useActivities } from '@/hooks/useData';
 import { formatDistance } from '@/lib/format';
@@ -84,6 +85,7 @@ export function ActivitiesView() {
 
   return (
     <div className="flex flex-col gap-5 py-2">
+      <SpeedCard activities={activities} units={units} title="Running vs walking speed" />
       <div className="flex flex-wrap items-center gap-3">
         <div role="group" aria-label="Filter by type" className="flex gap-2">
           {(['all', 'run', 'walk'] as const).map((f) => (
