@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
-import { Placeholder } from '@/components/layout/Placeholder';
+import { ClientOnly } from '@/components/layout/ClientOnly';
+import { ActivitiesView } from '@/components/activities/ActivitiesView';
 
 export const metadata: Metadata = { title: 'Activities' };
 
 export default function Page() {
-  return <Placeholder title="Activities" />;
+  return (
+    <ClientOnly>
+      <ActivitiesView />
+    </ClientOnly>
+  );
 }

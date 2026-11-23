@@ -3,6 +3,7 @@ import {
   computeSplits,
   distanceM,
   paceSecPerKm,
+  paceSeries,
   recentSpeedMps,
   rollingPaceSecPerKm,
   shouldAcceptPoint,
@@ -113,5 +114,15 @@ describe('recentSpeedMps', () => {
     pts.push(north(pts[pts.length - 1], 4, 0.3)); // 13 m/s for one 0.3 s gap
     expect(recentSpeedMps(pts, 5)).toBeLessThan(4);
     expect(recentSpeedMps(pts.slice(0, 3), 5)).toBe(0);
+  });
+});
+
+describe('paceSeries', () => {
+  it('buckets pace by moving time and skips standing still', () => {
+    const run = line(origin, 120, 4); // 250 s/km for 2 minutes
+    const stand = line(run[run.length - 1], 60, 0.1).slice(1); // basically standing
+    const s = paceSeries([...run, ...stand], 30);
+    expect(s).toHaveLength(4);
+    expect(s[0]).toEqual({ t: 30, paceSecPerKm: 250 });
   });
 });

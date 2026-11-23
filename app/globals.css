@@ -57,6 +57,8 @@
   --color-walk-ink: var(--walk-ink);
   --color-gold-ink: var(--gold-ink);
   --color-ink-on-accent: var(--ink-on-accent);
+  --color-chart-run: var(--chart-run);
+  --color-chart-walk: var(--chart-walk);
 }
 
 /* Light theme: same layout, white cards, softer accents. */
@@ -107,6 +109,9 @@
   --glass-border: rgb(11 15 26 / 8%);
   --shadow-soft: 0 1px 2px rgb(11 15 26 / 4%), 0 8px 24px -12px rgb(11 15 26 / 12%);
   --map-bg: #e8edf4;
+  /* Chart series colours (validated for CVD separation and the light lightness band). */
+  --chart-run: #f2622e;
+  --chart-walk: #00a888;
 }
 
 /* Dark theme (default): deep navy, glassy cards, vivid accents. */
@@ -156,6 +161,8 @@
   --glass-border: rgb(255 255 255 / 10%);
   --shadow-soft: 0 1px 2px rgb(0 0 0 / 20%), 0 12px 32px -16px rgb(0 0 0 / 60%);
   --map-bg: #0e1322;
+  --chart-run: #f0602c;
+  --chart-walk: #00a888;
 }
 
 @utility glass {

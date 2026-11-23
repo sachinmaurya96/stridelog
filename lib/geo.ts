@@ -151,3 +151,35 @@ export function movingTimeSec(points: GeoPoint[]) {
   }
   return t;
 }
+
+export interface PacePoint {
+  /** Moving time at the end of the bucket, in seconds. */
+  t: number;
+  paceSecPerKm: number;
+}
+
+/**
+ * Pace over moving time, in buckets of `bucketSec` (pauses excluded). Buckets where you were
+ * basically standing still (slower than 30 min/km) are skipped so they don't flatten the chart.
+ */
+export function paceSeries(points: GeoPoint[], bucketSec = 30): PacePoint[] {
+  const out: PacePoint[] = [];
+  let t = 0;
+  let bucketD = 0;
+  let bucketT = 0;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1], b = points[i];
+    if (!sameSegment(a, b)) continue;
+    const dt = Math.max(0, (b.t - a.t) / 1000);
+    t += dt;
+    bucketT += dt;
+    bucketD += distanceM(a, b);
+    if (bucketT >= bucketSec) {
+      const pace = paceSecPerKm(bucketD, bucketT);
+      if (pace > 0 && pace < 1800) out.push({ t: Math.round(t), paceSecPerKm: Math.round(pace) });
+      bucketD = 0;
+      bucketT = 0;
+    }
+  }
+  return out;
+}

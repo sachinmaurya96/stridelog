@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { TileLayer, useMap } from 'react-leaflet';
 import { useAppTheme } from '@/hooks/useAppTheme';
-import { TILES } from './style';
+import { TILES } from './tiles';
 
 /** Dark tiles in dark mode, light tiles in light mode (see TILES for the provider). */
 export function ThemedTiles() {

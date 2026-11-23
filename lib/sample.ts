@@ -16,13 +16,15 @@ export function createSampleActivity(
   const n = 240;
   const lengthM = 2 * Math.PI * radiusM;
   const stepSec = ((lengthM / 1000) * targetPace) / n;
+  let t = startedAt;
   const route: GeoPoint[] = Array.from({ length: n + 1 }, (_, i) => {
     const a = (i / n) * 2 * Math.PI;
     const wobble = 1 + 0.08 * Math.sin(a * 5);
+    if (i > 0) t += Math.round(stepSec * (1 + 0.15 * Math.sin(i / 9)) * 1000);
     return {
       lat: center.lat + ((radiusM * wobble) / 111_320) * Math.sin(a),
       lng: center.lng + ((radiusM * wobble) / (111_320 * Math.cos((center.lat * Math.PI) / 180))) * (1 - Math.cos(a)),
-      t: startedAt + Math.round(i * stepSec * (1 + 0.15 * Math.sin(i / 9)) * 1000),
+      t,
       acc: 5,
       seg: 0,
     };

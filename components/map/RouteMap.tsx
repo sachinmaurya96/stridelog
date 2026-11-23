@@ -14,6 +14,8 @@ export interface RouteMapProps {
   type: ActivityType;
   /** false = static thumbnail (no zoom, pan or controls). */
   interactive?: boolean;
+  /** Show Leaflet's attribution (defaults to `interactive`; tiny thumbnails credit the map once per page). */
+  attribution?: boolean;
   /** Position of the replay marker, if any. */
   marker?: { lat: number; lng: number } | null;
   className?: string;
@@ -30,7 +32,15 @@ function FitBounds({ route, padding }: { route: GeoPoint[]; padding: number }) {
   return <MapResizer onResize={fit} />;
 }
 
-export default function RouteMap({ route, type, interactive = true, marker, className, padding = 24 }: RouteMapProps) {
+export default function RouteMap({
+  route,
+  type,
+  interactive = true,
+  attribution = interactive,
+  marker,
+  className,
+  padding = 24,
+}: RouteMapProps) {
   const segments = useMemo(
     () => toSegments(route).map((seg) => seg.map((p) => [p.lat, p.lng] as [number, number])),
     [route],
@@ -54,6 +64,7 @@ export default function RouteMap({ route, type, interactive = true, marker, clas
         scrollWheelZoom={false}
         boxZoom={false}
         keyboard={interactive}
+        attributionControl={attribution}
         aria-label={interactive ? 'Route map' : undefined}
         aria-hidden={interactive ? undefined : true}
       >
