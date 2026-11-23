@@ -28,13 +28,13 @@ export function MoodPicker({ value, onChange }: { value: Rating; onChange: (v: R
             }}
             className={cn(
               'flex h-16 flex-col items-center justify-center gap-0.5 rounded-2xl border border-transparent bg-muted/60 transition-all',
-              checked ? 'scale-105 border-run bg-background shadow-md' : 'opacity-70 hover:opacity-100',
+              checked ? 'scale-105 border-run bg-background shadow-md' : 'hover:bg-muted',
             )}
           >
-            <span className="text-2xl leading-none" aria-hidden>
+            <span className={cn('text-2xl leading-none transition-opacity', !checked && 'opacity-60 grayscale-[40%]')} aria-hidden>
               {m.emoji}
             </span>
-            <span className="text-[11px] text-muted-foreground">{m.label}</span>
+            <span className={cn('text-[11px]', checked ? 'font-semibold text-foreground' : 'text-muted-foreground')}>{m.label}</span>
           </button>
         );
       })}

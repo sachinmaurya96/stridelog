@@ -87,12 +87,12 @@ export function ExercisesView() {
             ))}
           </div>
         </div>
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {list.map((e) => {
             const Icon = CATEGORY_ICON[e.category];
             const done = doneIds.has(e.id);
             return (
-              <li key={e.id}>
+              <li key={e.id} className="min-w-0">
                 <button
                   type="button"
                   onClick={() => setOpen(e)}
@@ -102,7 +102,7 @@ export function ExercisesView() {
                     <Icon className="size-6" aria-hidden />
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="flex items-center gap-1.5 font-semibold">
+                    <span className="flex items-center gap-1.5 font-semibold [overflow-wrap:anywhere]">
                       {e.name}
                       {done && (
                         <CheckCircle2 className="size-4 text-emerald-500" aria-label="done today" />

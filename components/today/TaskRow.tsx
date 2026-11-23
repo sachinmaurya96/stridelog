@@ -6,6 +6,7 @@ import { BedDouble, Check, Dumbbell, Footprints, GlassWater, Minus, Plus, Salad,
 import type { DailyTask, TaskKind } from '@/lib/tasks';
 import { Button } from '@/components/ui/button';
 import { addWater, setCheck, setSleep } from '@/data/dayLog';
+import { vibrate } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 
 const ICON: Record<TaskKind, typeof Footprints> = {
@@ -69,7 +70,7 @@ export function TaskRow({
   const Icon = ICON[task.kind];
 
   return (
-    <li className={cn('glass flex flex-col gap-3 rounded-2xl p-4 transition-opacity', task.done && 'opacity-80')}>
+    <li className="glass flex flex-col gap-3 rounded-2xl p-4">
       <div className="flex items-start gap-3">
         {task.manual ? (
           <button
@@ -77,7 +78,10 @@ export function TaskRow({
             role="checkbox"
             aria-checked={task.done}
             aria-label={task.title}
-            onClick={() => void setCheck(date, task.id, !task.done)}
+            onClick={() => {
+              vibrate(15);
+              void setCheck(date, task.id, !task.done);
+            }}
             className={cn(
               'grid size-11 shrink-0 place-items-center rounded-full border-2 transition-colors',
               task.done ? 'border-transparent bg-walk-gradient text-ink-on-accent' : 'border-border hover:border-walk',
@@ -114,7 +118,7 @@ export function TaskRow({
               {task.current.toLocaleString()} / {task.target.toLocaleString()} est. steps
             </span>
             {!task.done && (
-              <Link href="/track" className="font-semibold text-run-ink underline-offset-2 hover:underline">
+              <Link href="/track" className="inline-flex min-h-6 items-center font-semibold text-run-ink underline-offset-2 hover:underline">
                 Start a walk
               </Link>
             )}
@@ -130,7 +134,7 @@ export function TaskRow({
               {task.current} / {task.target} done
             </span>
             {!task.done && (
-              <Link href="/exercises" className="font-semibold text-run-ink underline-offset-2 hover:underline">
+              <Link href="/exercises" className="inline-flex min-h-6 items-center font-semibold text-run-ink underline-offset-2 hover:underline">
                 Open exercises
               </Link>
             )}
@@ -142,16 +146,30 @@ export function TaskRow({
         <div className="flex flex-col gap-2 pl-14">
           <Bar value={task.current} max={task.target} label="Water" />
           <div className="flex flex-wrap items-center gap-2">
-            <span className="mr-auto text-sm font-semibold tabular-nums">
+            <span className="mr-auto text-sm font-semibold tabular-nums" aria-live="polite">
               {(task.current / 1000).toFixed(2).replace(/0$/, '')} / {(task.target / 1000).toFixed(1)} L
             </span>
             <Button variant="outline" size="sm" onClick={() => void addWater(date, -250)} disabled={task.current <= 0} aria-label="Remove 250 ml">
               <Minus aria-hidden />
             </Button>
-            <Button variant="outline" size="sm" onClick={() => void addWater(date, 250)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                vibrate(10);
+                void addWater(date, 250);
+              }}
+            >
               <Plus aria-hidden /> 250 ml
             </Button>
-            <Button size="sm" className="bg-walk-gradient text-ink-on-accent hover:opacity-90" onClick={() => void addWater(date, 500)}>
+            <Button
+              size="sm"
+              className="bg-walk-gradient text-ink-on-accent hover:opacity-90"
+              onClick={() => {
+                vibrate(10);
+                void addWater(date, 500);
+              }}
+            >
               <Plus aria-hidden /> 500 ml
             </Button>
           </div>

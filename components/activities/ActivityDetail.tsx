@@ -158,6 +158,11 @@ export function ActivityDetail() {
     () => (activity ? (units === 'mi' ? computeSplits(activity.route, M_PER_MI) : activity.splits) : []),
     [activity, units],
   );
+  // The page title is static ("Activity"); show the activity's own name in the tab and to screen readers.
+  useEffect(() => {
+    if (activity) document.title = `${activity.title || activityTitle(activity.type, activity.startedAt)} · StrideLog`;
+  }, [activity]);
+
   const pace = useMemo(() => {
     if (!activity) return [];
     const bucket = Math.max(30, Math.round(activity.durationSec / 60));
@@ -198,7 +203,7 @@ export function ActivityDetail() {
 
   return (
     <div className="flex flex-col gap-5 py-2">
-      <Link href="/activities" className="flex w-fit items-center gap-1 rounded-lg text-sm text-muted-foreground hover:text-foreground">
+      <Link href="/activities" className="-ml-2 flex min-h-11 w-fit items-center gap-1 rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden /> Activities
       </Link>
 
@@ -280,9 +285,16 @@ export function ActivityDetail() {
         confirmLabel="Delete"
         destructive
         onConfirm={async () => {
-          await activityRepo.remove(activity.id);
-          toast.success(`${meta.label} deleted`);
+          const removed = activity;
+          await activityRepo.remove(removed.id);
           router.replace('/activities');
+          toast(`${meta.label} deleted`, {
+            duration: 8000,
+            action: {
+              label: 'Undo',
+              onClick: () => void activityRepo.save(removed).then(() => toast.success(`${meta.label} restored`)),
+            },
+          });
         }}
       />
     </div>

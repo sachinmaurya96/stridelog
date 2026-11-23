@@ -118,7 +118,7 @@ export function ActivitiesView() {
       {list.length === 0 && <p className="text-sm text-muted-foreground">No {filter === 'run' ? 'runs' : 'walks'} yet.</p>}
 
       {sort === 'distance' ? (
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
           {list.map((a) => (
             <ActivityCard key={a.id} activity={a} units={units} />
           ))}
@@ -136,7 +136,7 @@ export function ActivitiesView() {
                   {t.count} {t.count === 1 ? 'activity' : 'activities'} · {formatDistance(t.distanceM, units, 1)}
                 </span>
               </div>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
                 {acts.map((a) => (
                   <ActivityCard key={a.id} activity={a} units={units} />
                 ))}

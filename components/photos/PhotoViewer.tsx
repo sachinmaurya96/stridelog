@@ -139,8 +139,12 @@ export function PhotoViewer({
               confirmLabel="Delete"
               destructive
               onConfirm={async () => {
-                await photoRepo.remove(photo.id);
-                toast.success('Photo deleted');
+                const removed = photo;
+                await photoRepo.remove(removed.id);
+                toast('Photo deleted', {
+                  duration: 8000,
+                  action: { label: 'Undo', onClick: () => void photoRepo.save(removed) },
+                });
               }}
             />
           </>

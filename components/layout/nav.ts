@@ -33,7 +33,7 @@ export const NAV_ITEMS: NavItem[] = [
 
 /** Items shown in the mobile "More" sheet. */
 export const MORE_ITEMS = NAV_ITEMS.filter((i) =>
-  ['/today', '/activities', '/exercises', '/notes', '/photos', '/settings'].includes(i.href),
+  ['/activities', '/badges', '/exercises', '/notes', '/photos', '/settings'].includes(i.href),
 );
 
 export function isActive(pathname: string, href: string) {

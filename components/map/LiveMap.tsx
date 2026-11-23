@@ -4,10 +4,11 @@ import 'leaflet/dist/leaflet.css';
 import { useEffect, useMemo, useRef } from 'react';
 import L from 'leaflet';
 import { Circle, MapContainer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { useReducedMotion } from 'motion/react';
 import type { ActivityType, GeoPoint } from '@/data/types';
 import { cn } from '@/lib/utils';
 import type { Fix } from '@/components/tracking/TrackerProvider';
-import { MapResizer, ThemedTiles } from './MapParts';
+import { MapA11y, MapResizer, ThemedTiles } from './MapParts';
 import { RecenterButton } from './RecenterButton';
 import { flagIcon, locationIcon, routeStyles, START_COLOR } from './style';
 
@@ -24,6 +25,7 @@ export interface LiveMapProps {
 /** Centres on the first fix, then follows the user until they drag the map. */
 function Follow({ fix, following, onUserPan }: { fix: Fix | null; following: boolean; onUserPan: () => void }) {
   const map = useMap();
+  const reduceMotion = useReducedMotion();
   const centered = useRef(false);
   const wasFollowing = useRef(following);
   const onUserPanRef = useRef(onUserPan);
@@ -40,12 +42,12 @@ function Follow({ fix, following, onUserPan }: { fix: Fix | null; following: boo
       centered.current = true;
       map.setView([lat, lng], 17, { animate: false });
     } else if (following && !wasFollowing.current) {
-      map.setView([lat, lng], Math.max(map.getZoom(), 16), { animate: true });
+      map.setView([lat, lng], Math.max(map.getZoom(), 16), { animate: !reduceMotion });
     } else if (following) {
-      map.panTo([lat, lng], { animate: true, duration: 0.6 });
+      map.panTo([lat, lng], { animate: !reduceMotion, duration: 0.6 });
     }
     wasFollowing.current = following;
-  }, [lat, lng, following, map]);
+  }, [lat, lng, following, map, reduceMotion]);
   return null;
 }
 
@@ -131,6 +133,7 @@ export default function LiveMap({
   recenterClassName,
 }: LiveMapProps) {
   const startIcon = useMemo(() => flagIcon('Start', START_COLOR), []);
+  const reduceMotion = useReducedMotion();
   const start = route[0];
 
   return (
@@ -139,9 +142,12 @@ export default function LiveMap({
         center={[20, 0]}
         zoom={2}
         zoomControl={false}
+        zoomAnimation={!reduceMotion}
+        fadeAnimation={!reduceMotion}
+        markerZoomAnimation={!reduceMotion}
         className="size-full"
-        aria-label="Live map of your location and route"
       >
+        <MapA11y label="Live map of your location and route" />
         <ThemedTiles />
         <MapResizer />
         <Follow fix={fix} following={following} onUserPan={() => onFollowingChange(false)} />

@@ -12,7 +12,7 @@ function Thumb({ photo, onOpen }: { photo: DailyPhoto; onOpen: () => void }) {
     <button
       type="button"
       onClick={onOpen}
-      aria-label={`Open photo from ${format(fromDayKey(photo.date), 'd MMMM yyyy')}`}
+      aria-label={`${label}: open progress photo from ${format(fromDayKey(photo.date), 'd MMMM yyyy')}`}
       className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-muted"
     >
       {url && (

@@ -23,6 +23,26 @@ export function ThemedTiles() {
   );
 }
 
+/**
+ * react-leaflet doesn't pass ARIA props to the map element, so set them here:
+ * interactive maps become a named region; decorative thumbnails are hidden from screen readers.
+ */
+export function MapA11y({ label, decorative }: { label?: string; decorative?: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const el = map.getContainer();
+    if (decorative) {
+      el.setAttribute('aria-hidden', 'true');
+      el.removeAttribute('tabindex');
+    } else {
+      el.setAttribute('role', 'region');
+      el.setAttribute('aria-roledescription', 'map');
+      el.setAttribute('aria-label', label ?? 'Map');
+    }
+  }, [map, label, decorative]);
+  return null;
+}
+
 /** Keeps Leaflet's size in sync with its container (sheets, panels and rotation change it). */
 export function MapResizer({ onResize }: { onResize?: () => void }) {
   const map = useMap();

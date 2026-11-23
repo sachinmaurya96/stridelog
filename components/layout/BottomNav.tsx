@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Award, CalendarDays, Ellipsis, House, Play } from 'lucide-react';
+import { CalendarDays, Ellipsis, House, ListChecks, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Sheet,
@@ -16,12 +16,12 @@ import { MORE_ITEMS, isActive } from './nav';
 
 const TABS = [
   { href: '/', label: 'Home', icon: House },
+  { href: '/today', label: 'Today', icon: ListChecks },
   { href: '/calendar', label: 'Calendar', icon: CalendarDays },
-  { href: '/badges', label: 'Badges', icon: Award },
 ];
 
 const tabClass =
-  'flex h-14 min-w-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-medium text-muted-foreground transition-colors';
+  'flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-medium text-muted-foreground transition-colors';
 
 export function BottomNav({ className }: { className?: string }) {
   const pathname = usePathname();
@@ -52,7 +52,7 @@ export function BottomNav({ className }: { className?: string }) {
           className,
         )}
       >
-        <div className="mx-auto flex max-w-xl items-end justify-between px-2">
+        <div className="mx-auto flex max-w-xl items-end justify-between px-1 min-[360px]:px-2">
           {tab(TABS[0])}
           {tab(TABS[1])}
           <div className="flex flex-1 justify-center">

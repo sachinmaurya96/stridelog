@@ -13,7 +13,7 @@ export function TodayShortcuts({ today }: { today: string }) {
   const thumb = useObjectUrl(photo?.thumbBlob);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
       <Link href="/notes" className="glass group flex items-center gap-4 rounded-2xl p-4 transition-transform hover:-translate-y-0.5">
         <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-muted text-3xl">
           {note ? moodFor(note.mood).emoji : <NotebookPen className="size-6 text-muted-foreground" aria-hidden />}

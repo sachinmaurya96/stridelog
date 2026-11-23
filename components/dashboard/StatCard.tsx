@@ -31,8 +31,8 @@ export function StatCard({ label, value, format, unit, delta, comparedTo, icon: 
       <div
         className={cn(
           'flex items-center gap-1 text-xs font-medium',
-          up && 'text-emerald-600 dark:text-emerald-400',
-          down && 'text-rose-600 dark:text-rose-400',
+          up && 'text-emerald-700 dark:text-emerald-400',
+          down && 'text-rose-700 dark:text-rose-400',
           !up && !down && 'text-muted-foreground',
         )}
       >

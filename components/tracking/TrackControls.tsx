@@ -33,7 +33,7 @@ export function TrackControls({ status, type, onPause, onResume, onStop }: Track
         <HoldButton
           label="Stop (press and hold)"
           onComplete={onStop}
-          className="grid size-16 place-items-center rounded-full bg-destructive text-white shadow-lg shadow-destructive/30"
+          className="grid size-16 place-items-center rounded-full bg-[#e11d48] text-white shadow-lg shadow-[#e11d48]/30"
         >
           <Square className="size-6 fill-current" aria-hidden />
         </HoldButton>

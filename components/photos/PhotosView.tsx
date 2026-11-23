@@ -24,7 +24,7 @@ export function PhotosView() {
 
   return (
     <div className="flex flex-col gap-5 py-2">
-      <div className="grid items-start gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-2">
         <PhotoUploader defaultDate={defaultDate} />
         {photos && photos.length >= 2 && <PhotoCompare key={photos.length} photos={photos} />}
       </div>

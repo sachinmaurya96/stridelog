@@ -24,7 +24,7 @@ export function NotesView() {
   const notes = useNotes();
 
   return (
-    <div className="grid items-start gap-4 py-2 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 py-2 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <Card>
         <CardHeader className="flex flex-wrap items-end justify-between gap-3">
           <div>

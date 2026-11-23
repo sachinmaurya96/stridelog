@@ -101,7 +101,7 @@ export function CalendarView() {
   ];
 
   return (
-    <div className="grid gap-4 py-2 lg:grid-cols-[minmax(0,1fr)_18rem]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 py-2 lg:grid-cols-[minmax(0,1fr)_18rem]">
       <section aria-labelledby="month-title" className="glass flex flex-col gap-4 rounded-2xl p-3 sm:p-5">
         <div className="flex items-center gap-2">
           <h2 id="month-title" className="flex-1 text-lg font-bold" aria-live="polite">

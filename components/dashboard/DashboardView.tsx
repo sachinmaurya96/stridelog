@@ -4,12 +4,14 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
-import { Activity as ActivityIcon, Clock, Flame, Play, Route } from 'lucide-react';
+import { Activity as ActivityIcon, ArrowRight, Clock, Flame, Play, Route } from 'lucide-react';
+import { useDailyPlan } from '@/components/today/useDailyPlan';
+import { InstallCard } from './InstallCard';
 import type { ActivityType } from '@/data/types';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ACTIVITY_META } from '@/components/common/activity';
+import { Segmented } from '@/components/common/Segmented';
 import { useActivities } from '@/hooks/useData';
 import { distanceValue, formatDurationShort } from '@/lib/format';
 import {
@@ -50,6 +52,8 @@ function QuickStart({ now }: { now: Date }) {
   const type = useTrackingStore((s) => s.type);
   const setType = useTrackingStore((s) => s.setType);
   const active = isSessionActive(status) || status === 'finished';
+  const { plan } = useDailyPlan();
+  const next = plan?.tasks.find((t) => !t.done);
 
   const start = (t: ActivityType) => {
     setType(t);
@@ -63,6 +67,24 @@ function QuickStart({ now }: { now: Date }) {
         <h2 id="today-title" className="text-2xl font-bold tracking-tight">
           {format(now, 'd MMMM yyyy')}
         </h2>
+        {plan && (
+          <Link
+            href="/today"
+            className="mt-2 inline-flex min-h-11 max-w-full items-center gap-2 rounded-xl bg-muted/60 px-3 text-sm hover:bg-muted"
+          >
+            <span className="truncate">
+              {next ? (
+                <>
+                  <span className="text-muted-foreground">Next up: </span>
+                  {next.title}
+                </>
+              ) : (
+                'Every task done today 🎉'
+              )}
+            </span>
+            <ArrowRight className="size-4 shrink-0" aria-hidden />
+          </Link>
+        )}
       </div>
       {active ? (
         <Button asChild size="lg" className={cn('h-14 rounded-2xl text-base text-ink-on-accent', ACTIVITY_META[type].gradient)}>
@@ -71,7 +93,7 @@ function QuickStart({ now }: { now: Date }) {
           </Link>
         </Button>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
           {(['run', 'walk'] as const).map((t) => {
             const m = ACTIVITY_META[t];
             return (
@@ -161,7 +183,10 @@ export function DashboardView() {
   const recent = activities.slice(0, 3);
 
   return (
-    <div className="grid gap-4 py-2 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 py-2 md:grid-cols-2 xl:grid-cols-4">
+      <div className="empty:hidden md:col-span-2 xl:col-span-4">
+        <InstallCard />
+      </div>
       <div className="md:col-span-2">
         <QuickStart now={data.now} />
       </div>
@@ -203,13 +228,17 @@ export function DashboardView() {
           <h2 id="stats-title" className="font-semibold">
             Your stats
           </h2>
-          <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-            <TabsList aria-label="Period">
-              <TabsTrigger value="day" className="px-4">Day</TabsTrigger>
-              <TabsTrigger value="week" className="px-4">Week</TabsTrigger>
-              <TabsTrigger value="month" className="px-4">Month</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <Segmented
+            label="Stats period"
+            value={period}
+            onChange={setPeriod}
+            className="w-auto min-w-60"
+            options={[
+              { value: 'day', label: 'Day' },
+              { value: 'week', label: 'Week' },
+              { value: 'month', label: 'Month' },
+            ]}
+          />
         </div>
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
           <StatCard

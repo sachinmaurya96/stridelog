@@ -34,6 +34,14 @@ export function TrackView() {
   const recording = session.status === 'tracking' || session.status === 'paused' || session.status === 'finished';
   const showMore = expanded || isDesktop;
   const locationBlocked = !t.simulating && (t.permission === 'denied' || t.permission === 'unsupported');
+  // Announce GPS state changes, not every accuracy update.
+  const gpsAnnouncement = t.simulating
+    ? 'Simulated GPS is on.'
+    : locationBlocked
+      ? 'Location is turned off.'
+      : t.gpsReady
+        ? 'GPS ready. You can start.'
+        : 'Searching for a GPS signal.';
 
   function onPanelDragEnd(_: unknown, info: PanInfo) {
     if (info.offset.y < -40) setExpanded(true);
@@ -52,6 +60,12 @@ export function TrackView() {
 
   return (
     <div className="relative h-dvh lg:grid lg:h-[calc(100dvh-6.5rem)] lg:grid-cols-[minmax(0,2fr)_minmax(340px,1fr)] lg:gap-6 lg:pt-2">
+      {/* The top bar (and its h1) is hidden on phones here, so give the page its own heading. */}
+      <h1 className="sr-only lg:hidden">Track {meta.label.toLowerCase()}</h1>
+      <p className="sr-only" aria-live="polite">
+        {session.status === 'idle' ? gpsAnnouncement : ''}
+      </p>
+
       {/* Map */}
       <div className="absolute inset-0 lg:relative lg:overflow-hidden lg:rounded-2xl lg:border lg:border-border">
         <LiveMap
@@ -117,7 +131,7 @@ export function TrackView() {
               <Play className="size-5 fill-current" aria-hidden /> Start {meta.label.toLowerCase()}
             </Button>
             {!t.gpsReady && !locationBlocked && (
-              <p className="-mt-2 text-center text-xs text-muted-foreground" aria-live="polite">
+              <p className="-mt-2 text-center text-xs text-muted-foreground">
                 Waiting for an accurate GPS fix…
               </p>
             )}
@@ -134,9 +148,9 @@ export function TrackView() {
             <LiveStats stats={stats} units={units} expanded={showMore} paused={session.status !== 'tracking'} />
             {showMore && (
               <section aria-labelledby="live-splits">
-                <h3 id="live-splits" className="mb-2 text-sm font-semibold">
+                <h2 id="live-splits" className="mb-2 text-sm font-semibold">
                   Splits
-                </h3>
+                </h2>
                 <SplitsList splits={t.splits} units={units} />
               </section>
             )}

@@ -46,15 +46,15 @@ export function DayCell({ day, onSelect }: { day: DayInfo; onSelect: (d: DayInfo
       aria-current={day.isToday ? 'date' : undefined}
       className={cn(
         'relative flex aspect-square min-h-11 flex-col items-center justify-start gap-1 rounded-xl p-1 pt-1.5 text-sm transition-colors sm:aspect-auto sm:h-20 sm:items-start sm:p-2',
-        INTENSITY[day.intensity],
-        !day.intensity && 'hover:bg-muted/60',
-        !day.inMonth && 'opacity-40',
+        day.inMonth && INTENSITY[day.intensity],
+        (!day.intensity || !day.inMonth) && 'hover:bg-muted/60',
+        !day.inMonth && 'text-muted-foreground',
         day.isFuture && 'cursor-default opacity-30',
         day.isToday && 'ring-2 ring-run ring-inset',
       )}
     >
       <span className={cn('leading-none tabular-nums', day.isToday ? 'font-bold' : 'font-medium')}>{format(day.date, 'd')}</span>
-      <span className="flex items-center gap-1" aria-hidden>
+      <span className={cn('flex items-center gap-1', !day.inMonth && 'opacity-60')} aria-hidden>
         {day.runs > 0 && <span className="size-2 rounded-full bg-run ring-2 ring-background" />}
         {day.walks > 0 && <span className="size-2 rounded-full bg-walk ring-2 ring-background" />}
       </span>

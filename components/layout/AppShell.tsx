@@ -15,6 +15,7 @@ import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { TopBar } from './TopBar';
 import { PageSkeleton } from './PageSkeleton';
+import { OfflineBanner } from './OfflineBanner';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -55,6 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </a>
         <Sidebar className="hidden lg:flex" />
         <div className="flex min-w-0 flex-1 flex-col">
+          {hydrated && <OfflineBanner />}
           <TopBar className={cn(immersive && 'hidden lg:flex')} />
           <main
             id="main"

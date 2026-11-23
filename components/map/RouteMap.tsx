@@ -3,10 +3,11 @@
 import 'leaflet/dist/leaflet.css';
 import { useCallback, useEffect, useMemo } from 'react';
 import { CircleMarker, MapContainer, Marker, Polyline, useMap } from 'react-leaflet';
+import { useReducedMotion } from 'motion/react';
 import type { ActivityType, GeoPoint } from '@/data/types';
 import { boundsOf, directionMarkers, distanceM, toSegments } from '@/lib/geo';
 import { cn } from '@/lib/utils';
-import { MapResizer, ThemedTiles } from './MapParts';
+import { MapA11y, MapResizer, ThemedTiles } from './MapParts';
 import { arrowIcon, END_COLOR, flagIcon, pinIcon, routeColor, routeStyles, START_COLOR } from './style';
 
 export interface RouteMapProps {
@@ -57,6 +58,7 @@ export default function RouteMap({
     return { start: flagIcon('Start', START_COLOR), end: flagIcon('Finish', END_COLOR, !!loop) };
   }, [labels, first, last]);
   const arrows = useMemo(() => (labels ? directionMarkers(route, 6) : []), [labels, route]);
+  const reduceMotion = useReducedMotion();
   const center: [number, number] = first ? [first.lat, first.lng] : [20, 0];
 
   return (
@@ -73,9 +75,11 @@ export default function RouteMap({
         boxZoom={false}
         keyboard={interactive}
         attributionControl={attribution}
-        aria-label={interactive ? 'Route map' : undefined}
-        aria-hidden={interactive ? undefined : true}
+        zoomAnimation={!reduceMotion}
+        fadeAnimation={!reduceMotion}
+        markerZoomAnimation={!reduceMotion}
       >
+        <MapA11y label={`${type === 'run' ? 'Run' : 'Walk'} route map`} decorative={!interactive} />
         <ThemedTiles />
         <FitBounds route={route} padding={padding} />
         {segments.map((positions, i) =>

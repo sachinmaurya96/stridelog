@@ -53,7 +53,7 @@ export function LiveStats({
         <Big label={stats.currentPace ? 'Pace' : 'Avg pace'} value={formatPaceValue(pace, units)} />
       </div>
       {paused && (
-        <p className="mx-auto rounded-full bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-300">
+        <p className="mx-auto rounded-full bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-800 dark:text-amber-300">
           Paused
         </p>
       )}

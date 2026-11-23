@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import confetti from 'canvas-confetti';
+import { useReducedMotion } from 'motion/react';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { nanoid } from 'nanoid';
 import { Plus } from 'lucide-react';
@@ -10,6 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GoalRing } from '@/components/dashboard/GoalRing';
 import { useSettingsStore } from '@/store/settingsStore';
+import { useUiStore } from '@/store/uiStore';
+import { vibrate } from '@/lib/haptics';
 import { TargetsCard } from './TargetsCard';
 import { TaskRow } from './TaskRow';
 import { useDailyPlan } from './useDailyPlan';
@@ -42,6 +47,19 @@ function AddTask() {
 
 export function TodayView() {
   const { date, log, plan, settings } = useDailyPlan();
+  const celebratedDay = useUiStore((s) => s.celebratedDay);
+  const markCelebrated = useUiStore((s) => s.markCelebrated);
+  const reduceMotion = useReducedMotion();
+  const allDone = !!plan && plan.progress.total > 0 && plan.progress.done === plan.progress.total;
+
+  // Celebrate the first time every task is ticked off today.
+  useEffect(() => {
+    if (!allDone || celebratedDay === date) return;
+    markCelebrated(date);
+    vibrate([60, 40, 60]);
+    toast.success('Perfect day! Every task is done 🎉');
+    if (!reduceMotion) void confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#ff6b35', '#ff3d71', '#00d4aa', '#ffc94d'] });
+  }, [allDone, celebratedDay, date, markCelebrated, reduceMotion]);
 
   if (!plan || !log) {
     return (
@@ -57,7 +75,7 @@ export function TodayView() {
     done === total ? 'Everything done. Brilliant day!' : done === 0 ? "Let's get started. Small steps add up." : `${total - done} to go. Keep it up!`;
 
   return (
-    <div className="grid items-start gap-4 py-2 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 py-2 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div className="flex flex-col gap-4">
         <section aria-labelledby="today-progress" className="glass flex items-center gap-5 rounded-2xl p-5">
           <GoalRing value={done} goal={total} label="tasks" size={120} stroke={12} />
@@ -79,7 +97,19 @@ export function TodayView() {
               sleepHours={log.sleepHours}
               onRemove={
                 t.kind === 'custom'
-                  ? () => settings.update({ customTasks: settings.customTasks.filter((c) => `custom:${c.id}` !== t.id) })
+                  ? () => {
+                      const removed = settings.customTasks.find((c) => `custom:${c.id}` === t.id);
+                      settings.update({ customTasks: settings.customTasks.filter((c) => c !== removed) });
+                      if (removed) {
+                        toast(`Removed “${removed.title}”`, {
+                          duration: 8000,
+                          action: {
+                            label: 'Undo',
+                            onClick: () => settings.update({ customTasks: [...useSettingsStore.getState().customTasks, removed] }),
+                          },
+                        });
+                      }
+                    }
                   : undefined
               }
             />

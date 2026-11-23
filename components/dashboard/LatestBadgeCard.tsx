@@ -16,7 +16,6 @@ export function LatestBadgeCard() {
   return (
     <Link
       href="/badges"
-      aria-labelledby="latest-badge-title"
       className="glass flex items-center gap-4 rounded-2xl p-5 transition-transform hover:-translate-y-0.5"
     >
       {badge ? (
