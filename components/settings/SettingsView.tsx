@@ -4,6 +4,7 @@ import { DataSection } from './DataSection';
 import { GoalsSection } from './GoalsSection';
 import { PreferencesSection } from './PreferencesSection';
 import { ProfileSection } from './ProfileSection';
+import { StorageSection } from './StorageSection';
 
 export function SettingsView() {
   return (
@@ -12,6 +13,7 @@ export function SettingsView() {
       <GoalsSection />
       <PreferencesSection />
       <DataSection />
+      <StorageSection />
     </div>
   );
 }
