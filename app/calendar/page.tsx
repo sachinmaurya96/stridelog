@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
-import { Placeholder } from '@/components/layout/Placeholder';
+import { ClientOnly } from '@/components/layout/ClientOnly';
+import { CalendarView } from '@/components/calendar/CalendarView';
 
 export const metadata: Metadata = { title: 'Calendar' };
 
 export default function Page() {
-  return <Placeholder title="Calendar" />;
+  return (
+    <ClientOnly>
+      <CalendarView />
+    </ClientOnly>
+  );
 }
