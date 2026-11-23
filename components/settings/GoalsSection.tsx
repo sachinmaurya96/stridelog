@@ -4,10 +4,13 @@ import { Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { NumberStepper } from '@/components/common/NumberStepper';
 import { useSettingsStore } from '@/store/settingsStore';
+import { distanceValue, toMeters } from '@/lib/format';
 import { LIMITS } from './fields';
 
 export function GoalsSection() {
-  const { dailyGoalSteps, weeklyGoalActivities, weeklyGoalKm, update } = useSettingsStore();
+  const { dailyGoalSteps, weeklyGoalActivities, weeklyGoalKm, units, update } = useSettingsStore();
+  // Stored in km; shown and edited in the user's units.
+  const weeklyGoal = Math.round(distanceValue(weeklyGoalKm * 1000, units));
 
   return (
     <Card>
@@ -39,9 +42,9 @@ export function GoalsSection() {
           <NumberStepper
             id="settings-weekly-km"
             label="Distance per week"
-            unit="km"
-            value={weeklyGoalKm}
-            onChange={(v) => update({ weeklyGoalKm: v })}
+            unit={units}
+            value={weeklyGoal}
+            onChange={(v) => update({ weeklyGoalKm: +(toMeters(v, units) / 1000).toFixed(2) })}
             {...LIMITS.weeklyGoalKm}
           />
         </div>

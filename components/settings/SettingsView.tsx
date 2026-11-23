@@ -2,6 +2,7 @@
 
 import { DataSection } from './DataSection';
 import { GoalsSection } from './GoalsSection';
+import { InstallSection } from './InstallSection';
 import { PreferencesSection } from './PreferencesSection';
 import { ProfileSection } from './ProfileSection';
 import { StorageSection } from './StorageSection';
@@ -14,6 +15,7 @@ export function SettingsView() {
       <PreferencesSection />
       <DataSection />
       <StorageSection />
+      <InstallSection />
     </div>
   );
 }

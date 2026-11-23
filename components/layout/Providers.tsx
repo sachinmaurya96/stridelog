@@ -6,6 +6,8 @@ import { MotionConfig } from 'motion/react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
 import { useSettingsStore } from '@/store/settingsStore';
+import '@/store/installStore'; // starts listening for the install prompt as early as possible
+import { ServiceWorker } from './ServiceWorker';
 
 /** Keeps next-themes in sync with the theme saved in settings. */
 function ThemeSync() {
@@ -21,6 +23,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
       <ThemeSync />
+      <ServiceWorker />
       <MotionConfig reducedMotion="user">
         <TooltipProvider delayDuration={300}>
           {children}

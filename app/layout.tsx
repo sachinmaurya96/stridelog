@@ -14,6 +14,13 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: { default: "StrideLog", template: "%s · StrideLog" },
   description: "Track your runs and walks, streaks, badges, notes and progress photos.",
+  applicationName: "StrideLog",
+  appleWebApp: { capable: true, title: "StrideLog", statusBarStyle: "black-translucent" },
+  formatDetection: { telephone: false },
+  icons: {
+    icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export const viewport: Viewport = {

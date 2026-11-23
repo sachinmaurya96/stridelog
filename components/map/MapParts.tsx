@@ -17,6 +17,8 @@ export function ThemedTiles() {
       maxZoom={t.maxZoom}
       maxNativeZoom={t.maxZoom}
       className={t.className}
+      // CORS tiles (both providers allow it) so the service worker can cache real responses, not opaque ones.
+      crossOrigin="anonymous"
     />
   );
 }

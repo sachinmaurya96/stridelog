@@ -252,7 +252,7 @@ export function DashboardView() {
           activities={data.weekTotals.count}
           activitiesGoal={settings.weeklyGoalActivities}
           distance={dist(data.weekTotals.distanceM)}
-          distanceGoal={settings.weeklyGoalKm}
+          distanceGoal={Math.round(dist(settings.weeklyGoalKm * 1000))}
           unit={units}
         />
         <LatestBadgeCard />

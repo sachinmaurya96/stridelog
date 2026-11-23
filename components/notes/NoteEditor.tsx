@@ -99,6 +99,7 @@ export function NoteEditor({ date, initial }: { date: string; initial: DailyNote
         </div>
         <Slider
           aria-labelledby="energy-label"
+          aria-valuetext={`${draft.energy} of 5, ${ENERGY[draft.energy - 1]}`}
           min={1}
           max={5}
           step={1}

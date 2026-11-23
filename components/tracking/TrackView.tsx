@@ -140,23 +140,26 @@ export function TrackView() {
                 <SplitsList splits={t.splits} units={units} />
               </section>
             )}
-            {session.status !== 'finished' && (
-              <TrackControls
-                status={session.status === 'paused' ? 'paused' : 'tracking'}
-                type={session.type}
-                onPause={t.pause}
-                onResume={t.resume}
-                onStop={t.stop}
-              />
-            )}
             {!isDesktop && !expanded && (
               <button
                 type="button"
                 onClick={() => setExpanded(true)}
-                className="-mt-2 flex h-8 items-center justify-center gap-1 text-xs text-muted-foreground"
+                className="-my-2 flex h-8 items-center justify-center gap-1 text-xs text-muted-foreground"
               >
                 <ChevronUp className="size-4" aria-hidden /> Swipe up for more
               </button>
+            )}
+            {session.status !== 'finished' && (
+              // Pinned to the bottom of the panel so Pause/Stop stay reachable when the stats are expanded.
+              <div className="sticky bottom-0 z-10 -mx-4 -mb-[calc(1rem+env(safe-area-inset-bottom))] bg-background/95 px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur lg:static lg:m-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+                <TrackControls
+                  status={session.status === 'paused' ? 'paused' : 'tracking'}
+                  type={session.type}
+                  onPause={t.pause}
+                  onResume={t.resume}
+                  onStop={t.stop}
+                />
+              </div>
             )}
           </>
         )}

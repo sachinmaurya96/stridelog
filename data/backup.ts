@@ -2,6 +2,7 @@ import { activityRepo, noteRepo, photoRepo } from './repositories';
 import type { Activity, DailyNote, DailyPhoto, Settings, UnlockedBadge } from './types';
 import { DEFAULT_SETTINGS, getSettings, useSettingsStore } from '@/store/settingsStore';
 import { useBadgeStore } from '@/store/badgeStore';
+import { useTrackingStore } from '@/store/trackingStore';
 
 type SerializedPhoto = Omit<DailyPhoto, 'blob' | 'thumbBlob'> & { blob: string; thumbBlob: string };
 
@@ -83,11 +84,12 @@ export async function importAll(file: File) {
   return { activities: data.activities.length, notes: data.notes?.length ?? 0, photos: photos.length };
 }
 
-/** Deletes every activity, note, photo, badge and setting. */
+/** Deletes every activity, note, photo, badge, setting and any unfinished session. */
 export async function resetAll() {
   await Promise.all([activityRepo.clear(), noteRepo.clear(), photoRepo.clear()]);
   useBadgeStore.getState().reset();
   useSettingsStore.getState().reset();
+  useTrackingStore.getState().reset();
 }
 
 export function backupFileName(now = new Date()) {
