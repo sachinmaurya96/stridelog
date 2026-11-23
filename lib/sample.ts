@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import type { Activity, ActivityType, GeoPoint } from '@/data/types';
 import { computeSplits, movingTimeSec, paceSecPerKm, totalDistance } from './geo';
 import { caloriesKcal, estimateSteps } from './fitness';
+import { DEFAULT_SIM_CENTER } from './simulate';
 
 /** A believable fake activity (a loop in a park) for testing storage without going outside. */
 export function createSampleActivity(
@@ -9,7 +10,7 @@ export function createSampleActivity(
   startedAt = Date.now() - 45 * 60_000,
   profile = { weightKg: 70, heightCm: 170 },
 ): Activity {
-  const center = { lat: 51.5074, lng: -0.1657 };
+  const center = DEFAULT_SIM_CENTER;
   const radiusM = type === 'run' ? 650 : 400;
   const targetPace = type === 'run' ? 330 : 690;
   const n = 240;

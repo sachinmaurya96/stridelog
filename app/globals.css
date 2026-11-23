@@ -166,6 +166,15 @@
   backdrop-filter: blur(16px) saturate(140%);
 }
 
+/* More opaque glass for controls that float over the map. */
+@utility glass-strong {
+  background-color: color-mix(in oklab, var(--background) 92%, transparent);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+
 @utility bg-run-gradient {
   background-image: linear-gradient(135deg, var(--run) 0%, var(--run-2) 100%);
 }
@@ -225,6 +234,18 @@
 }
 .leaflet-control-attribution {
   font-size: 10px;
+}
+/* Turns the light OpenStreetMap tiles into a navy night map. */
+.sl-tiles-dark {
+  filter: invert(1) hue-rotate(200deg) saturate(0.4) brightness(0.85) contrast(0.9);
+}
+.sl-thumb .leaflet-control-attribution {
+  font-size: 7px;
+  line-height: 1.2;
+  padding: 0 3px;
+}
+.sl-thumb .leaflet-control-attribution .leaflet-attribution-flag {
+  display: none !important;
 }
 .dark .leaflet-control-attribution {
   background: rgb(11 15 26 / 70%) !important;

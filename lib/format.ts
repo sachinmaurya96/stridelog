@@ -1,4 +1,4 @@
-import type { Units } from '@/data/types';
+import type { ActivityType, Units } from '@/data/types';
 
 export const M_PER_MI = 1609.344;
 
@@ -57,4 +57,16 @@ export function toMeters(value: number, units: Units = 'km') {
 
 export function formatNumber(n: number, maxDecimals = 0) {
   return n.toLocaleString(undefined, { maximumFractionDigits: maxDecimals });
+}
+
+/** "Morning Run", "Evening Walk"… from the local start time. */
+export function activityTitle(type: ActivityType, startedAt: number) {
+  const h = new Date(startedAt).getHours();
+  const part =
+    h >= 5 && h < 11 ? 'Morning'
+    : h >= 11 && h < 14 ? 'Lunch'
+    : h >= 14 && h < 17 ? 'Afternoon'
+    : h >= 17 && h < 21 ? 'Evening'
+    : 'Night';
+  return `${part} ${type === 'run' ? 'Run' : 'Walk'}`;
 }

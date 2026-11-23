@@ -32,8 +32,11 @@ export function speedKmh(distanceM: number, durationSec: number) {
   return durationSec > 0 ? (distanceM / durationSec) * 3.6 : 0;
 }
 
-/** Time taken for each full kilometre, interpolated at the exact km mark. Pause gaps are excluded. */
-export function computeSplits(points: GeoPoint[]): Split[] {
+/**
+ * Time taken for each full kilometre (or `unitM`, e.g. a mile), interpolated at the exact mark.
+ * Pause gaps are excluded. `paceSecPerKm` is always seconds per km, so it formats with any units.
+ */
+export function computeSplits(points: GeoPoint[], unitM = 1000): Split[] {
   const splits: Split[] = [];
   let dist = 0;
   let time = 0;
@@ -44,11 +47,11 @@ export function computeSplits(points: GeoPoint[]): Split[] {
     if (!sameSegment(a, b)) continue;
     let d = distanceM(a, b);
     let dt = Math.max(0, (b.t - a.t) / 1000);
-    while (d > 0 && dist + d >= km * 1000) {
-      const need = km * 1000 - dist;
+    while (d > 0 && dist + d >= km * unitM) {
+      const need = km * unitM - dist;
       const frac = need / d;
       const tAt = time + dt * frac;
-      splits.push({ km, paceSecPerKm: Math.round(tAt - splitStart) });
+      splits.push({ km, paceSecPerKm: Math.round(((tAt - splitStart) * 1000) / unitM) });
       splitStart = tAt;
       dist += need;
       time = tAt;
@@ -98,6 +101,23 @@ export function rollingPaceSecPerKm(points: GeoPoint[], windowSec = 30) {
   const dt = (last.t - first.t) / 1000;
   if (d < 10 || dt < 5) return 0;
   return paceSecPerKm(d, dt);
+}
+
+/**
+ * Average speed over at least the last `minWindowSec` seconds of the current segment
+ * (0 until there is that much data). Used for max speed, so one noisy fix can't fake a sprint.
+ */
+export function recentSpeedMps(points: GeoPoint[], minWindowSec = 5) {
+  const last = points[points.length - 1];
+  let d = 0;
+  for (let i = points.length - 1; i > 0; i--) {
+    const a = points[i - 1], b = points[i];
+    if (!sameSegment(a, b)) break;
+    d += distanceM(a, b);
+    const span = (last.t - a.t) / 1000;
+    if (span >= minWindowSec) return d / span;
+  }
+  return 0;
 }
 
 /** Groups a flat route into pause-separated segments for drawing polylines. */

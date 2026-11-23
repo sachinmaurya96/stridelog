@@ -3,6 +3,7 @@ import {
   computeSplits,
   distanceM,
   paceSecPerKm,
+  recentSpeedMps,
   rollingPaceSecPerKm,
   shouldAcceptPoint,
   toSegments,
@@ -94,5 +95,23 @@ describe('distance, pace and splits', () => {
     const slow = line(origin, 60, 2); // 500 s/km
     const fast = line(slow[slow.length - 1], 40, 4).slice(1); // 250 s/km
     expect(rollingPaceSecPerKm([...slow, ...fast], 30)).toBeCloseTo(250, 0);
+  });
+});
+
+describe('mile splits', () => {
+  it('reports pace per km equivalent for each full mile', () => {
+    const pts = line(origin, 700, 5); // 3.5 km at 5 m/s
+    const splits = computeSplits(pts, 1609.344);
+    expect(splits).toHaveLength(2);
+    expect(Math.abs(splits[0].paceSecPerKm - 200)).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('recentSpeedMps', () => {
+  it('averages over a window so a single short gap does not create a spike', () => {
+    const pts = line(origin, 20, 3);
+    pts.push(north(pts[pts.length - 1], 4, 0.3)); // 13 m/s for one 0.3 s gap
+    expect(recentSpeedMps(pts, 5)).toBeLessThan(4);
+    expect(recentSpeedMps(pts.slice(0, 3), 5)).toBe(0);
   });
 });
