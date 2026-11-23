@@ -3,6 +3,7 @@
 import { useContext, useMemo } from 'react';
 import { nanoid } from 'nanoid';
 import { TrackerContext } from '@/components/tracking/TrackerProvider';
+import { checkBadges } from '@/data/badgeService';
 import { activityRepo } from '@/data/repositories';
 import { buildActivity } from '@/lib/activity';
 import { now } from '@/lib/clock';
@@ -85,6 +86,7 @@ export function useTracker() {
       );
       await activityRepo.save(activity);
       s.reset();
+      await checkBadges(activity.id);
       return activity;
     },
   };

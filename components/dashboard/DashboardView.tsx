@@ -31,6 +31,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { isSessionActive, useTrackingStore } from '@/store/trackingStore';
 import { EmptyIllustration } from './EmptyIllustration';
 import { GoalRing } from './GoalRing';
+import { LatestBadgeCard } from './LatestBadgeCard';
 import { MonthlyChart } from './MonthlyChart';
 import { RecentActivities } from './RecentActivities';
 import { StatCard } from './StatCard';
@@ -254,6 +255,7 @@ export function DashboardView() {
           distanceGoal={settings.weeklyGoalKm}
           unit={units}
         />
+        <LatestBadgeCard />
       </div>
 
       <section aria-labelledby="month-chart-title" className="glass flex flex-col gap-3 rounded-2xl p-5 md:col-span-2">

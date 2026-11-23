@@ -86,7 +86,8 @@ export interface BadgeContext {
 export interface BadgeProgress {
   current: number;
   target: number;
-  label: string;         // e.g. "7.4 / 10 km"
+  /** How to format the numbers, e.g. "7.4 / 10 km", "Streak 4 / 7", "5'40\" / 5'00\"". */
+  kind: 'distance' | 'count' | 'days' | 'pace';
 }
 
 export interface BadgeDef {

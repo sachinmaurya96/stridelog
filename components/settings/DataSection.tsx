@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { activityRepo } from '@/data/repositories';
+import { checkBadges } from '@/data/badgeService';
 import { backupFileName, exportAll, importAll, resetAll } from '@/data/backup';
 import { useDataCounts } from '@/hooks/useData';
 import { downloadBlob } from '@/lib/download';
@@ -56,11 +57,13 @@ export function DataSection() {
     const list = createDemoHistory(new Date(), getSettings());
     for (const a of list) await activityRepo.save(a);
     toast.success(`Added ${list.length} demo activities`);
+    await checkBadges();
   }
 
   async function addSample() {
     await activityRepo.save(createSampleActivity(Math.random() < 0.5 ? 'run' : 'walk', Date.now() - 45 * 60_000, getSettings()));
     toast.success('Sample activity saved');
+    await checkBadges();
   }
 
   return (

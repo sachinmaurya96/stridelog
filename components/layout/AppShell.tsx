@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useHydrated } from '@/hooks/useHydrated';
 import { useSettingsStore } from '@/store/settingsStore';
+import { BadgeUnlockDialog } from '@/components/badges/BadgeUnlockDialog';
 import { RouteGradients } from '@/components/map/RouteGradients';
 import { ActiveSessionBanner } from '@/components/tracking/ActiveSessionBanner';
 import { ResumePrompt } from '@/components/tracking/ResumePrompt';
@@ -70,6 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <>
             <ActiveSessionBanner />
             <ResumePrompt />
+            <BadgeUnlockDialog />
           </>
         )}
         <RouteGradients />
