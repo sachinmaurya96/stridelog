@@ -10,6 +10,7 @@ import { now } from '@/lib/clock';
 import { caloriesKcal, estimateSteps } from '@/lib/fitness';
 import { M_PER_MI } from '@/lib/format';
 import { computeSplits, paceSecPerKm, rollingPaceSecPerKm } from '@/lib/geo';
+import { deviceSpeed } from '@/lib/gps';
 import { vibrate } from '@/lib/haptics';
 import { getSettings, useSettingsStore } from '@/store/settingsStore';
 import { movingMsAt, useTrackingStore } from '@/store/trackingStore';
@@ -19,7 +20,10 @@ export interface LiveStats {
   movingSec: number;
   distanceM: number;
   avgPace: number;
+  /** Pace right now (0 = not moving). */
   currentPace: number;
+  /** Speed right now in m/s (0 = not moving). */
+  currentSpeedMps: number;
   speedMps: number;
   maxSpeedMps: number;
   calories: number;
@@ -38,12 +42,24 @@ export function useTracker() {
   // Re-render every second while recording so the timer moves (faster when simulating).
   useTicker(session.status === 'tracking' ? (ctx.simulating ? 250 : 1000) : null);
 
-  const movingSec = movingMsAt(session, now()) / 1000;
+  const t = now();
+  const movingSec = movingMsAt(session, t) / 1000;
+  // Only show a current pace/speed while the GPS filter says we're actually moving.
+  const moving = session.status === 'tracking' && session.gps.moving && !session.autoPaused;
+  const sensorSpeed = moving ? deviceSpeed(session.gps, t) : null;
+  const currentPace = !moving
+    ? 0
+    : sensorSpeed != null
+      ? sensorSpeed >= 0.3
+        ? 1000 / sensorSpeed
+        : 0
+      : rollingPaceSecPerKm(session.route, 30);
   const stats: LiveStats = {
     movingSec,
     distanceM: session.distanceM,
     avgPace: paceSecPerKm(session.distanceM, movingSec),
-    currentPace: session.status === 'tracking' ? rollingPaceSecPerKm(session.route, 30) : 0,
+    currentPace,
+    currentSpeedMps: currentPace > 0 ? 1000 / currentPace : 0,
     speedMps: movingSec > 0 ? session.distanceM / movingSec : 0,
     maxSpeedMps: session.maxSpeedMps,
     calories: caloriesKcal({ type: session.type, weightKg, durationSec: movingSec, distanceM: session.distanceM }),
@@ -68,7 +84,9 @@ export function useTracker() {
       session.begin(now(), ctx.fix?.point);
     },
     pause: () => session.pause(now()),
-    resume: () => session.resume(now()),
+    resume: () => session.resume(now(), ctx.fix?.point),
+    /** True when the GPS filter sees movement right now. */
+    moving,
     stop: () => {
       vibrate(300);
       session.finish(now());

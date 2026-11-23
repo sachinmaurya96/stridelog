@@ -20,10 +20,22 @@ export interface LiveMapProps {
   onFollowingChange: (following: boolean) => void;
   className?: string;
   recenterClassName?: string;
+  /** Height (px) of UI covering the bottom of the map; the dot is centred in the space above it. */
+  bottomInset?: number;
 }
 
 /** Centres on the first fix, then follows the user until they drag the map. */
-function Follow({ fix, following, onUserPan }: { fix: Fix | null; following: boolean; onUserPan: () => void }) {
+function Follow({
+  fix,
+  following,
+  onUserPan,
+  bottomInset,
+}: {
+  fix: Fix | null;
+  following: boolean;
+  onUserPan: () => void;
+  bottomInset: number;
+}) {
   const map = useMap();
   const reduceMotion = useReducedMotion();
   const centered = useRef(false);
@@ -38,16 +50,20 @@ function Follow({ fix, following, onUserPan }: { fix: Fix | null; following: boo
   const lng = fix?.point.lng;
   useEffect(() => {
     if (lat == null || lng == null) return;
+    // Map centre that puts the dot in the middle of the visible area above the stats panel.
+    const centreFor = (zoom: number) =>
+      bottomInset > 0 ? map.unproject(map.project([lat, lng], zoom).add([0, bottomInset / 2]), zoom) : L.latLng(lat, lng);
     if (!centered.current) {
       centered.current = true;
-      map.setView([lat, lng], 17, { animate: false });
+      map.setView(centreFor(17), 17, { animate: false });
     } else if (following && !wasFollowing.current) {
-      map.setView([lat, lng], Math.max(map.getZoom(), 16), { animate: !reduceMotion });
+      const zoom = Math.max(map.getZoom(), 16);
+      map.setView(centreFor(zoom), zoom, { animate: !reduceMotion });
     } else if (following) {
-      map.panTo([lat, lng], { animate: !reduceMotion, duration: 0.6 });
+      map.panTo(centreFor(map.getZoom()), { animate: !reduceMotion, duration: 0.6 });
     }
     wasFollowing.current = following;
-  }, [lat, lng, following, map, reduceMotion]);
+  }, [lat, lng, following, map, reduceMotion, bottomInset]);
   return null;
 }
 
@@ -86,9 +102,11 @@ function LiveRoute({ route, type }: { route: GeoPoint[]; type: ActivityType }) {
   const map = useMap();
   const layers = useRef(new Map<number, L.Polyline[]>());
   const drawn = useRef(0);
+  const lastDrawn = useRef<GeoPoint | null>(null);
 
   useEffect(() => {
-    if (route.length < drawn.current) {
+    // Points can be removed (GPS drift dropped after a stop): then redraw from scratch.
+    if (route.length < drawn.current || (drawn.current > 0 && route[drawn.current - 1] !== lastDrawn.current)) {
       layers.current.forEach((ls) => ls.forEach((l) => l.remove()));
       layers.current.clear();
       drawn.current = 0;
@@ -104,6 +122,7 @@ function LiveRoute({ route, type }: { route: GeoPoint[]; type: ActivityType }) {
       for (const l of ls) l.addLatLng([p.lat, p.lng]);
     }
     drawn.current = route.length;
+    lastDrawn.current = route[route.length - 1] ?? null;
   }, [route, type, map]);
 
   useEffect(() => {
@@ -131,6 +150,7 @@ export default function LiveMap({
   onFollowingChange,
   className,
   recenterClassName,
+  bottomInset = 0,
 }: LiveMapProps) {
   const startIcon = useMemo(() => flagIcon('Start', START_COLOR), []);
   const reduceMotion = useReducedMotion();
@@ -150,7 +170,7 @@ export default function LiveMap({
         <MapA11y label="Live map of your location and route" />
         <ThemedTiles />
         <MapResizer />
-        <Follow fix={fix} following={following} onUserPan={() => onFollowingChange(false)} />
+        <Follow fix={fix} following={following} onUserPan={() => onFollowingChange(false)} bottomInset={bottomInset} />
         <LiveRoute route={route} type={type} />
         {start && <Marker position={[start.lat, start.lng]} icon={startIcon} interactive={false} keyboard={false} />}
         {fix && <LocationMarker fix={fix} />}

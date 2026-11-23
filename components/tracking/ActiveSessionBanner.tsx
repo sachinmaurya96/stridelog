@@ -26,9 +26,15 @@ export function ActiveSessionBanner() {
       href="/track"
       className="glass-strong fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 mx-auto flex h-12 max-w-sm items-center gap-3 rounded-full px-4 text-sm font-semibold shadow-xl lg:inset-x-auto lg:right-6 lg:bottom-6"
     >
-      <span className={cn('size-2.5 rounded-full', paused ? 'bg-amber-400' : 'animate-pulse bg-destructive')} aria-hidden />
+      <span className={cn('size-2.5 rounded-full', paused || s.autoPaused ? 'bg-amber-400' : 'animate-pulse bg-destructive')} aria-hidden />
       <span className="flex-1 truncate">
-        {s.status === 'finished' ? `Unsaved ${label}` : paused ? `Paused ${label}` : `Recording ${label}`}
+        {s.status === 'finished'
+          ? `Unsaved ${label}`
+          : paused
+            ? `Paused ${label}`
+            : s.autoPaused
+              ? `Auto-paused ${label}`
+              : `Recording ${label}`}
       </span>
       <span className="tabular-nums text-muted-foreground">
         {formatDuration(movingMsAt(s, now()) / 1000)} · {distanceValue(s.distanceM, units).toFixed(2)} {units}

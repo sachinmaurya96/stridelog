@@ -72,6 +72,7 @@ export interface Settings {
   weeklyGoalKm: number;        // e.g. 20
   theme: ThemePref;
   onboarded: boolean;
+  autoPause: boolean;          // pause the timer while standing still
   age: number;                 // used for calorie and sleep targets
   sex: Sex;
   customTasks: CustomTask[];

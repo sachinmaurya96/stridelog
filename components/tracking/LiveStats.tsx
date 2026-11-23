@@ -31,15 +31,20 @@ export function LiveStats({
   units,
   expanded,
   paused,
+  autoPaused,
+  moving,
   className,
 }: {
   stats: Stats;
   units: Units;
   expanded: boolean;
   paused: boolean;
+  autoPaused: boolean;
+  moving: boolean;
   className?: string;
 }) {
-  const pace = stats.currentPace || stats.avgPace;
+  // Standing still shows no pace at all, rather than the last pace you ran.
+  const pace = moving ? stats.currentPace || stats.avgPace : 0;
   const minutes = Math.floor(stats.movingSec / 60);
   const dist = distanceValue(stats.distanceM, units);
   // Announce a summary once a minute instead of on every tick.
@@ -50,17 +55,26 @@ export function LiveStats({
       <div className="grid grid-cols-3 gap-2">
         <Big label="Time" value={formatDuration(stats.movingSec)} />
         <Big label="Distance" value={dist.toFixed(2)} unit={units} />
-        <Big label={stats.currentPace ? 'Pace' : 'Avg pace'} value={formatPaceValue(pace, units)} />
+        <Big label="Pace" value={formatPaceValue(pace, units)} />
       </div>
-      {paused && (
+      {paused ? (
         <p className="mx-auto rounded-full bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-800 dark:text-amber-300">
           Paused
         </p>
+      ) : autoPaused ? (
+        <p className="mx-auto rounded-full bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-800 dark:text-amber-300">
+          Auto-paused · start moving to resume
+        </p>
+      ) : (
+        !moving && (
+          <p className="mx-auto rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">Not moving</p>
+        )
       )}
       {expanded && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Small label="Avg pace" value={`${formatPaceValue(stats.avgPace, units)}/${units}`} />
-          <Small label="Speed" value={formatSpeed(stats.speedMps, units)} />
+          <Small label="Speed now" value={formatSpeed(stats.currentSpeedMps, units)} />
+          <Small label="Avg speed" value={formatSpeed(stats.speedMps, units)} />
           <Small label="Max speed" value={formatSpeed(stats.maxSpeedMps, units)} />
           <Small label="Calories" value={`${formatNumber(stats.calories)} kcal`} />
           <Small label="Est. steps" value={formatNumber(stats.steps)} />

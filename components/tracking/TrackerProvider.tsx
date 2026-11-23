@@ -10,7 +10,7 @@ import { now, setTimeScale } from '@/lib/clock';
 import { computeSplits, paceSecPerKm } from '@/lib/geo';
 import { formatPace, M_PER_MI } from '@/lib/format';
 import { vibrate } from '@/lib/haptics';
-import { DEFAULT_SIM_CENTER, startSimulation } from '@/lib/simulate';
+import { DEFAULT_SIM_CENTER, startSimulation, type Simulation } from '@/lib/simulate';
 import { useSettingsStore } from '@/store/settingsStore';
 import { isSessionActive, movingMsAt, useTrackingStore } from '@/store/trackingStore';
 
@@ -25,6 +25,9 @@ export interface TrackerContextValue {
   gpsError: string | null;
   retryGps: () => void;
   simulating: boolean;
+  /** Dev simulator: standing still (GPS still drifts). */
+  simStill: boolean;
+  setSimStill: (still: boolean) => void;
   startSimulation: (speedFactor: number) => void;
   stopSimulation: () => void;
 }
@@ -36,7 +39,7 @@ let recoveredThisPageLoad = false;
 
 /**
  * Runs the tracking engine for the whole app (GPS or simulator → store, wake lock,
- * heartbeat, per-km alerts), so a session keeps recording when you browse other pages.
+ * stop detection tick, per-km alerts), so a session keeps recording when you browse other pages.
  */
 export function TrackerProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -45,8 +48,11 @@ export function TrackerProvider({ children }: { children: React.ReactNode }) {
   const active = isSessionActive(status);
 
   const [simulating, setSimulating] = useState(false);
+  const [simStill, setSimStillState] = useState(false);
+  const autoPause = useSettingsStore((s) => s.autoPause);
+  const display = useTrackingStore((s) => (s.status === 'tracking' ? s.gps.display : null));
   const [simFix, setSimFix] = useState<Fix | null>(null);
-  const stopSimRef = useRef<(() => void) | null>(null);
+  const simRef = useRef<Simulation | null>(null);
 
   const gps = useGeolocation({ enabled: !simulating && (active || pathname === '/track'), onPosition: addPoint });
 
@@ -58,8 +64,8 @@ export function TrackerProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const stopSimulation = useCallback(() => {
-    stopSimRef.current?.();
-    stopSimRef.current = null;
+    simRef.current?.stop();
+    simRef.current = null;
     setTimeScale(1);
     setSimulating(false);
     setSimFix(null);
@@ -68,9 +74,10 @@ export function TrackerProvider({ children }: { children: React.ReactNode }) {
   const lastRealPosition = gps.position;
   const beginSimulation = useCallback(
     (speedFactor: number) => {
-      stopSimRef.current?.();
+      simRef.current?.stop();
       setTimeScale(speedFactor);
-      stopSimRef.current = startSimulation({
+      setSimStillState(false);
+      simRef.current = startSimulation({
         center: lastRealPosition ?? DEFAULT_SIM_CENTER,
         getType: () => useTrackingStore.getState().type,
         speedFactor,
@@ -90,12 +97,23 @@ export function TrackerProvider({ children }: { children: React.ReactNode }) {
     if (status === 'finished' || (status === 'idle' && prevStatus.current !== 'idle')) stopSimulation();
     prevStatus.current = status;
   }, [status, stopSimulation]);
-  useEffect(() => () => stopSimRef.current?.(), []);
+  useEffect(() => () => simRef.current?.stop(), []);
 
-  // Heartbeat so a crash can be recovered up to the last moment we were alive.
+  const setSimStill = useCallback((still: boolean) => {
+    simRef.current?.setStill(still);
+    setSimStillState(still);
+  }, []);
+
+  // Auto-pause preference (Settings) → tracker.
+  useEffect(() => {
+    useTrackingStore.getState().setAutoPause(autoPause, now());
+  }, [autoPause]);
+
+  // Every second: detect stops even when the phone sends no new fixes, and record that we're alive
+  // (so a crash can be recovered up to this moment).
   useEffect(() => {
     if (status !== 'tracking') return;
-    const id = setInterval(() => useTrackingStore.getState().heartbeat(now()), 5000);
+    const id = setInterval(() => useTrackingStore.getState().tick(now()), 1000);
     return () => clearInterval(id);
   }, [status]);
 
@@ -118,10 +136,12 @@ export function TrackerProvider({ children }: { children: React.ReactNode }) {
     [units],
   );
 
-  const fix = useMemo<Fix | null>(
-    () => (simulating ? simFix : gps.position ? { point: gps.position, heading: gps.heading } : null),
-    [simulating, simFix, gps.position, gps.heading],
-  );
+  // While recording, show the filtered position so the dot doesn't dance around when you stand still.
+  const fix = useMemo<Fix | null>(() => {
+    const raw = simulating ? simFix : gps.position ? { point: gps.position, heading: gps.heading } : null;
+    if (!raw || !display) return raw;
+    return { point: { ...raw.point, lat: display.lat, lng: display.lng }, heading: raw.heading };
+  }, [simulating, simFix, gps.position, gps.heading, display]);
 
   const value = useMemo<TrackerContextValue>(
     () => ({
@@ -130,10 +150,12 @@ export function TrackerProvider({ children }: { children: React.ReactNode }) {
       gpsError: simulating ? null : gps.error,
       retryGps: gps.retry,
       simulating,
+      simStill,
+      setSimStill,
       startSimulation: beginSimulation,
       stopSimulation,
     }),
-    [fix, simulating, gps.permission, gps.error, gps.retry, beginSimulation, stopSimulation],
+    [fix, simulating, simStill, setSimStill, gps.permission, gps.error, gps.retry, beginSimulation, stopSimulation],
   );
 
   return <TrackerContext.Provider value={value}>{children}</TrackerContext.Provider>;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, useDragControls, type PanInfo } from 'motion/react';
@@ -30,6 +30,16 @@ export function TrackView() {
   const [following, setFollowing] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const dragControls = useDragControls();
+  // On phones the stats panel covers the bottom of the map: keep the dot centred above it.
+  const panelRef = useRef<HTMLElement>(null);
+  const [panelHeight, setPanelHeight] = useState(0);
+  useEffect(() => {
+    const el = panelRef.current;
+    if (!el || isDesktop) return;
+    const ro = new ResizeObserver(() => setPanelHeight(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [isDesktop]);
   const meta = ACTIVITY_META[session.type];
   const recording = session.status === 'tracking' || session.status === 'paused' || session.status === 'finished';
   const showMore = expanded || isDesktop;
@@ -76,6 +86,7 @@ export function TrackView() {
           onFollowingChange={setFollowing}
           className="size-full"
           recenterClassName="top-[calc(4.5rem+env(safe-area-inset-top))] right-3 lg:top-3"
+          bottomInset={isDesktop ? 0 : panelHeight}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-2 p-3 pt-[calc(0.75rem+env(safe-area-inset-top))]">
           <Button asChild variant="secondary" size="icon" className="glass-strong pointer-events-auto rounded-full lg:invisible">
@@ -90,6 +101,7 @@ export function TrackView() {
 
       {/* Stats / controls panel */}
       <motion.section
+        ref={panelRef}
         aria-label={recording ? 'Live stats' : 'Start an activity'}
         className="glass-strong absolute inset-x-0 bottom-0 z-20 flex max-h-[75dvh] flex-col gap-4 overflow-y-auto rounded-t-3xl px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:static lg:max-h-none lg:rounded-2xl lg:p-5"
         drag={isDesktop ? false : 'y'}
@@ -145,7 +157,14 @@ export function TrackView() {
               <meta.Icon className={cn('size-4', meta.ink)} aria-hidden />
               <span className={meta.ink}>{meta.label}</span>
             </div>
-            <LiveStats stats={stats} units={units} expanded={showMore} paused={session.status !== 'tracking'} />
+            <LiveStats
+              stats={stats}
+              units={units}
+              expanded={showMore}
+              paused={session.status === 'paused'}
+              autoPaused={session.autoPaused}
+              moving={t.moving}
+            />
             {showMore && (
               <section aria-labelledby="live-splits">
                 <h2 id="live-splits" className="mb-2 text-sm font-semibold">
@@ -162,6 +181,16 @@ export function TrackView() {
               >
                 <ChevronUp className="size-4" aria-hidden /> Swipe up for more
               </button>
+            )}
+            {t.simulating && session.status === 'tracking' && (
+              <SimulateControls
+                simulating
+                recording
+                still={t.simStill}
+                onStill={t.setSimStill}
+                onStart={t.startSimulation}
+                onStop={t.stopSimulation}
+              />
             )}
             {session.status !== 'finished' && (
               // Pinned to the bottom of the panel so Pause/Stop stay reachable when the stats are expanded.
