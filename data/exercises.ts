@@ -1,9 +1,10 @@
 // Bodyweight exercises that need no equipment, chosen to complement running and walking.
+import type { ExerciseId } from './exerciseVisuals';
 
 export type ExerciseCategory = 'strength' | 'core' | 'cardio' | 'mobility';
 
 export interface Exercise {
-  id: string;
+  id: ExerciseId;
   name: string;
   category: ExerciseCategory;
   muscles: string[];

@@ -8,7 +8,7 @@ import { useDayLog } from '@/hooks/useData';
 import { dayKey } from '@/lib/stats';
 import { cn } from '@/lib/utils';
 import { ExerciseDialog } from './ExerciseDialog';
-import { CATEGORY_ICON, CATEGORY_TINT } from './meta';
+import { ExerciseReference } from './ExerciseReference';
 import { WorkoutPlayer, type WorkoutPlan } from './WorkoutPlayer';
 
 type Filter = 'all' | ExerciseCategory;
@@ -89,7 +89,6 @@ export function ExercisesView() {
         </div>
         <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {list.map((e) => {
-            const Icon = CATEGORY_ICON[e.category];
             const done = doneIds.has(e.id);
             return (
               <li key={e.id} className="min-w-0">
@@ -98,9 +97,7 @@ export function ExercisesView() {
                   onClick={() => setOpen(e)}
                   className="glass flex w-full items-center gap-3 rounded-2xl p-4 text-left transition-transform hover:-translate-y-0.5"
                 >
-                  <span className={cn('grid size-12 shrink-0 place-items-center rounded-2xl text-ink-on-accent', CATEGORY_TINT[e.category])}>
-                    <Icon className="size-6" aria-hidden />
-                  </span>
+                  <ExerciseReference exercise={e} compact className="h-24 w-28 shrink-0" />
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="flex items-center gap-1.5 font-semibold [overflow-wrap:anywhere]">
                       {e.name}

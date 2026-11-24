@@ -8,6 +8,7 @@ import { exerciseById } from '@/data/exercises';
 import { logExercise } from '@/data/dayLog';
 import { vibrate } from '@/lib/haptics';
 import { dayKey } from '@/lib/stats';
+import { ExerciseReference } from './ExerciseReference';
 
 export interface WorkoutPlan {
   name: string;
@@ -22,7 +23,7 @@ type Phase = 'ready' | 'work' | 'rest' | 'done';
 export function WorkoutPlayer({ plan, onClose }: { plan: WorkoutPlan | null; onClose: () => void }) {
   return (
     <Dialog open={!!plan} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-md">{plan && <Player key={plan.name + plan.exercises.join()} plan={plan} onClose={onClose} />}</DialogContent>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">{plan && <Player key={plan.name + plan.exercises.join()} plan={plan} onClose={onClose} />}</DialogContent>
     </Dialog>
   );
 }
@@ -104,6 +105,7 @@ function Player({ plan, onClose }: { plan: WorkoutPlan; onClose: () => void }) {
   const r = 70;
   const c = 2 * Math.PI * r;
   const next = phase === 'rest' ? exerciseById(plan.exercises[index + 1]) : undefined;
+  const displayedExercise = phase === 'rest' ? next : exercise;
 
   return (
     <div className="flex flex-col items-center gap-4 text-center">
@@ -145,6 +147,7 @@ function Player({ plan, onClose }: { plan: WorkoutPlan; onClose: () => void }) {
         <p className="text-xl font-bold">{phase === 'rest' ? `Next: ${next?.name}` : exercise?.name}</p>
         <p className="text-sm text-muted-foreground">{phase === 'rest' ? next?.steps[0] : exercise?.steps[0]}</p>
       </div>
+      {displayedExercise && <ExerciseReference exercise={displayedExercise} />}
       <div className="flex w-full gap-3">
         <Button variant="outline" size="lg" className="flex-1" onClick={() => setPaused((p) => !p)}>
           {paused ? <Play aria-hidden /> : <Pause aria-hidden />} {paused ? 'Resume' : 'Pause'}

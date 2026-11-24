@@ -9,6 +9,7 @@ import { logExercise } from '@/data/dayLog';
 import { dayKey } from '@/lib/stats';
 import { cn } from '@/lib/utils';
 import { CATEGORY_ICON, CATEGORY_TINT } from './meta';
+import { ExerciseReference } from './ExerciseReference';
 
 export function ExerciseDialog({
   exercise,
@@ -40,6 +41,7 @@ export function ExerciseDialog({
                 </div>
               </div>
             </DialogHeader>
+            <ExerciseReference exercise={exercise} />
             <div className="flex flex-col gap-4 text-sm">
               <p className="text-muted-foreground">Works: {exercise.muscles.join(', ')}</p>
               <ol className="flex list-decimal flex-col gap-2 pl-5">
