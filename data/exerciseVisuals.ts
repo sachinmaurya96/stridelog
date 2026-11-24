@@ -9,8 +9,8 @@ export interface ExercisePose {
   arms: readonly [Limb, Limb];
   legs: readonly [Limb, Limb];
   toes?: readonly [Point, Point];
-  /** Curved spine for cat–cow; other poses use a neutral, straight torso. */
-  spine?: string;
+  /** Curve control point for the cat–cow spine; other poses use a neutral, straight torso. */
+  bend?: Point;
   wall?: boolean;
 }
 
@@ -20,9 +20,15 @@ interface Position {
   pose: ExercisePose;
 }
 
+/** How fast the animation moves between positions; `hold` pauses on the final position. */
+export type Tempo = 'quick' | 'steady' | 'slow' | 'swing' | 'hold';
+
 export interface ExerciseVisual {
   positions: readonly [Position, Position, ...Position[]];
   cue: string;
+  tempo: Tempo;
+  /** Repeat the movement on the other side: swap the legs, swap arms and legs, or mirror a front view. */
+  alternate?: 'legs' | 'limbs' | 'mirror';
 }
 
 const standing: ExercisePose = {
@@ -71,13 +77,13 @@ export const EXERCISE_VISUALS = {
     positions: [
       { label: 'Stand tall', description: 'Feet shoulder-width apart, toes slightly out.', pose: standing },
       { label: 'Sit back', description: 'Bend your hips and knees, then stand again.', pose: squat },
-    ], cue: 'Keep your heels down and your chest lifted.',
+    ], cue: 'Keep your heels down and your chest lifted.', tempo: 'steady',
   },
   'reverse-lunge': {
     positions: [
       { label: 'Stand tall', description: 'Start with feet hip-width apart.', pose: standing },
       { label: 'Step back & lower', description: 'Bend both knees, then return and switch legs.', pose: lunge },
-    ], cue: 'Keep the front knee above the ankle.',
+    ], cue: 'Keep the front knee above the ankle.', tempo: 'steady', alternate: 'legs',
   },
   'side-lunge': {
     positions: [
@@ -85,7 +91,7 @@ export const EXERCISE_VISUALS = {
         ...standing, legs: [[[90, 174], [43, 216]], [[190, 174], [237, 216]]],
       } },
       { label: 'Shift to one side', description: 'Bend one knee and sit back; return and switch.', pose: sideLunge },
-    ], cue: 'Keep the other leg straight and both feet on the floor.',
+    ], cue: 'Keep the other leg straight and both feet on the floor.', tempo: 'steady', alternate: 'mirror',
   },
   'push-up': {
     positions: [
@@ -95,7 +101,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[109, 187], [65, 215]], [[119, 179], [82, 212]]],
         legs: [[[191, 202], [234, 214]], [[199, 196], [244, 208]]],
       } },
-    ], cue: 'Move your whole body together in a straight line.',
+    ], cue: 'Move your whole body together in a straight line.', tempo: 'steady',
   },
   'glute-bridge': {
     positions: [
@@ -104,7 +110,7 @@ export const EXERCISE_VISUALS = {
         ...onBack, hip: [136, 177],
         legs: [[[183, 157], [219, 214]], [[196, 159], [235, 211]]],
       } },
-    ], cue: 'At the top, shoulders, hips and knees form one line.',
+    ], cue: 'At the top, shoulders, hips and knees form one line.', tempo: 'steady',
   },
   'single-leg-deadlift': {
     positions: [
@@ -116,7 +122,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[65, 161], [67, 195]], [[81, 162], [82, 198]]],
         legs: [[[137, 179], [145, 216]], [[194, 135], [244, 128]]],
       } },
-    ], cue: 'Keep your back flat and your hips facing the floor.',
+    ], cue: 'Keep your back flat and your hips facing the floor.', tempo: 'slow',
   },
   'calf-raise': {
     positions: [
@@ -127,7 +133,7 @@ export const EXERCISE_VISUALS = {
         legs: [[[126, 161], [119, 202]], [[154, 161], [161, 202]]],
         toes: [[133, 216], [175, 216]],
       } },
-    ], cue: 'Keep the balls of your feet on the floor as your heels lift.',
+    ], cue: 'Keep the balls of your feet on the floor as your heels lift.', tempo: 'steady',
   },
   'wall-sit': {
     positions: [
@@ -141,7 +147,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[100, 122], [128, 149]], [[110, 118], [145, 146]]],
         legs: [[[142, 153], [142, 216]], [[159, 151], [159, 212]]],
       } },
-    ], cue: 'Keep your back against the wall throughout the hold.',
+    ], cue: 'Keep your back against the wall throughout the hold.', tempo: 'hold',
   },
   superman: {
     positions: [
@@ -155,7 +161,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[55, 174], [22, 167]], [[62, 163], [28, 155]]],
         legs: [[[196, 192], [242, 178]], [[204, 186], [252, 168]]],
       } },
-    ], cue: 'Make a small lift and keep your neck in line with your back.',
+    ], cue: 'Make a small lift and keep your neck in line with your back.', tempo: 'steady',
   },
   plank: {
     positions: [
@@ -169,7 +175,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[65, 210], [104, 214]], [[78, 203], [115, 207]]],
         legs: [[[190, 198], [236, 214]], [[199, 191], [246, 207]]],
       } },
-    ], cue: 'Keep a straight line from head to heels. Breathe steadily.',
+    ], cue: 'Keep a straight line from head to heels. Breathe steadily.', tempo: 'hold',
   },
   'side-plank': {
     positions: [
@@ -183,7 +189,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[66, 211], [107, 214]], [[111, 149], [147, 174]]],
         legs: [[[194, 197], [242, 215]], [[194, 188], [242, 206]]],
       } },
-    ], cue: 'Keep shoulders, hips and feet in line. Repeat on the other side.',
+    ], cue: 'Keep shoulders, hips and feet in line. Repeat on the other side.', tempo: 'hold',
   },
   'dead-bug': {
     positions: [
@@ -192,7 +198,7 @@ export const EXERCISE_VISUALS = {
         ...deadBug, arms: [[[43, 196], [13, 190]], [[85, 171], [85, 132]]],
         legs: [[[151, 150], [203, 149]], [[190, 196], [243, 205]]],
       } },
-    ], cue: 'Keep your lower back pressed into the floor.',
+    ], cue: 'Keep your lower back pressed into the floor.', tempo: 'slow', alternate: 'limbs',
   },
   'bird-dog': {
     positions: [
@@ -202,7 +208,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[49, 133], [16, 132]], [[98, 173], [96, 211]]],
         legs: [[[178, 209], [228, 214]], [[216, 139], [254, 139]]],
       } },
-    ], cue: 'Keep your hips level without twisting or arching your back.',
+    ], cue: 'Keep your hips level without twisting or arching your back.', tempo: 'slow', alternate: 'limbs',
   },
   'bicycle-crunch': {
     positions: [
@@ -216,7 +222,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[105, 156], [65, 148]], [[52, 184], [55, 158]]],
         legs: [[[195, 190], [245, 195]], [[128, 155], [179, 158]]],
       } },
-    ], cue: 'Turn your upper body slowly; avoid pulling on your neck.',
+    ], cue: 'Turn your upper body slowly; avoid pulling on your neck.', tempo: 'steady',
   },
   'jumping-jacks': {
     positions: [
@@ -227,7 +233,7 @@ export const EXERCISE_VISUALS = {
         ...standing, arms: [[[103, 43], [121, 15]], [[177, 43], [159, 15]]],
         legs: [[[103, 175], [72, 216]], [[177, 175], [208, 216]]],
       } },
-    ], cue: 'Land softly with slightly bent knees.',
+    ], cue: 'Land softly with slightly bent knees.', tempo: 'quick',
   },
   'high-knees': {
     positions: [
@@ -239,7 +245,7 @@ export const EXERCISE_VISUALS = {
         ...standing, arms: [[[111, 100], [107, 71]], [[170, 103], [192, 126]]],
         legs: [[[125, 175], [118, 216]], [[196, 133], [193, 179]]],
       } },
-    ], cue: 'Stay tall and land softly on the balls of your feet.',
+    ], cue: 'Stay tall and land softly on the balls of your feet.', tempo: 'quick',
   },
   'mountain-climbers': {
     positions: [
@@ -247,7 +253,7 @@ export const EXERCISE_VISUALS = {
       { label: 'Drive a knee in', description: 'Bring one knee towards your chest, then switch.', pose: {
         ...highPlank, legs: [[[106, 187], [157, 209]], [[198, 179], [244, 208]]],
       } },
-    ], cue: 'Keep your hips low and your shoulders above your hands.',
+    ], cue: 'Keep your hips low and your shoulders above your hands.', tempo: 'quick', alternate: 'legs',
   },
   'skater-hops': {
     positions: [
@@ -261,7 +267,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[188, 118], [225, 131]], [[125, 111], [92, 94]]],
         legs: [[[157, 178], [178, 216]], [[93, 177], [71, 198]]],
       } },
-    ], cue: 'Land softly and find your balance before the next hop.',
+    ], cue: 'Land softly and find your balance before the next hop.', tempo: 'quick',
   },
   burpee: {
     positions: [
@@ -281,7 +287,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[110, 38], [120, 13]], [[170, 38], [160, 13]]],
         legs: [[[129, 164], [125, 201]], [[152, 164], [156, 201]]],
       } },
-    ], cue: 'Repeat the sequence at a pace you can control.',
+    ], cue: 'Repeat the sequence at a pace you can control.', tempo: 'steady',
   },
   'leg-swings': {
     positions: [
@@ -295,7 +301,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[99, 80], [64, 75]], [[164, 101], [167, 140]]],
         legs: [[[132, 175], [128, 216]], [[102, 158], [60, 177]]],
       } },
-    ], cue: 'Stay upright. Repeat on both legs, then swing side to side.',
+    ], cue: 'Stay upright. Repeat on both legs, then swing side to side.', tempo: 'swing',
   },
   'hip-flexor-stretch': {
     positions: [
@@ -308,17 +314,17 @@ export const EXERCISE_VISUALS = {
         arms: [[[166, 120], [186, 148]], [[153, 122], [175, 151]]],
         legs: [[[188, 153], [185, 216]], [[125, 212], [66, 214]]],
       } },
-    ], cue: 'Keep your torso tall. Hold, breathe, then switch sides.',
+    ], cue: 'Keep your torso tall. Hold, breathe, then switch sides.', tempo: 'slow',
   },
   'cat-cow': {
     positions: [
       { label: 'Cow · breathe in', description: 'Gently lower your belly and lift your chest.', pose: {
-        ...handsAndKnees, head: [57, 105], spine: 'M85 135 Q130 172 177 139',
+        ...handsAndKnees, head: [57, 105], bend: [130, 172],
       } },
       { label: 'Cat · breathe out', description: 'Round your back up and tuck your chin.', pose: {
-        ...handsAndKnees, head: [61, 149], spine: 'M85 135 Q130 82 177 139',
+        ...handsAndKnees, head: [61, 149], bend: [130, 82],
       } },
-    ], cue: 'Move slowly between the two shapes with your breath.',
+    ], cue: 'Move slowly between the two shapes with your breath.', tempo: 'slow',
   },
   'worlds-greatest-stretch': {
     positions: [
@@ -332,7 +338,7 @@ export const EXERCISE_VISUALS = {
         arms: [[[81, 172], [67, 213]], [[116, 87], [124, 40]]],
         legs: [[[92, 158], [72, 216]], [[207, 182], [245, 214]]],
       } },
-    ], cue: 'Keep the supporting hand on the floor. Repeat on both sides.',
+    ], cue: 'Keep the supporting hand on the floor. Repeat on both sides.', tempo: 'slow',
   },
 } satisfies Record<string, ExerciseVisual>;
 
